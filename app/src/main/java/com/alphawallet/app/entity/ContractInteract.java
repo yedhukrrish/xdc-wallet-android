@@ -6,7 +6,7 @@ import static com.alphawallet.app.repository.TokenRepository.callSmartContractFu
 import android.text.TextUtils;
 
 import com.alphawallet.app.C;
-import com.alphawallet.app.entity.nftassets.NFTAsset;
+
 import com.alphawallet.app.entity.tokens.Token;
 import com.alphawallet.app.service.IPFSService;
 import com.alphawallet.app.util.Utils;
@@ -61,26 +61,6 @@ public class ContractInteract
         return client.getContent(tokenURI);
     }
 
-    public NFTAsset fetchTokenMetadata(BigInteger tokenId)
-    {
-        //1. get TokenURI (check for non-standard URI - check "tokenURI" and "uri")
-        String responseValue = callSmartContractFunction(token.tokenInfo.chainId, getTokenURI(tokenId), token.getAddress(), token.getWallet());
-        if (responseValue == null)
-        {
-            responseValue = callSmartContractFunction(token.tokenInfo.chainId, getTokenURI2(tokenId), token.getAddress(), token.getWallet());
-        }
-
-        responseValue = Utils.parseResponseValue(responseValue, tokenId); //ensure {id} is honoured as per ERC1155 rules
-        String metaData = loadMetaData(responseValue);
-        if (!TextUtils.isEmpty(metaData))
-        {
-            return new NFTAsset(metaData);
-        }
-        else
-        {
-            return new NFTAsset();
-        }
-    }
 
     private Function getTokenURI(BigInteger tokenId)
     {

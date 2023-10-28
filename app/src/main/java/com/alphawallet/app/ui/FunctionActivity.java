@@ -34,7 +34,7 @@ import com.alphawallet.app.entity.StandardFunctionInterface;
 import com.alphawallet.app.entity.TransactionReturn;
 import com.alphawallet.app.entity.Wallet;
 import com.alphawallet.app.entity.WalletType;
-import com.alphawallet.app.entity.nftassets.NFTAsset;
+
 import com.alphawallet.app.entity.tokens.Token;
 import com.alphawallet.app.entity.tokenscript.TokenScriptRenderCallback;
 import com.alphawallet.app.entity.tokenscript.WebCompletionCallback;
@@ -97,7 +97,6 @@ public class FunctionActivity extends BaseActivity implements FunctionCallback,
     private TokenFunctionViewModel viewModel;
     private Token token;
     private List<BigInteger> tokenIds;
-    private NFTAsset asset;
     private BigInteger tokenId;
     private String actionMethod;
     private Web3TokenView tokenView;
@@ -120,7 +119,7 @@ public class FunctionActivity extends BaseActivity implements FunctionCallback,
         }
 
         Wallet wallet = getIntent().getParcelableExtra(C.Key.WALLET);
-        asset = getIntent().getParcelableExtra(C.EXTRA_NFTASSET);
+
         if (wallet == null)
         {
             viewModel.getCurrentWallet();
@@ -156,11 +155,6 @@ public class FunctionActivity extends BaseActivity implements FunctionCallback,
 
     private Token resolveAssetToken(Wallet wallet, long chainId)
     {
-        if (asset != null && asset.isAttestation())
-        {
-            return viewModel.getTokenService().getAttestation(chainId, getIntent().getStringExtra(C.EXTRA_ADDRESS), asset.getAttestationID());
-        }
-        else
         {
             return viewModel.getTokensService().getToken(wallet.address, chainId, getIntent().getStringExtra(C.EXTRA_ADDRESS));
         }
@@ -218,8 +212,6 @@ public class FunctionActivity extends BaseActivity implements FunctionCallback,
         action = functions.get(actionMethod);
         List<Attribute> localAttrs = (action != null && action.attributes != null) ? new ArrayList<>(action.attributes.values()) : null;
 
-        //Add attestation attributes
-        attrs.append(viewModel.addAttestationAttrs(asset, token, action));
 
         viewModel.getAssetDefinitionService().resolveAttrs(token, tokenIds, localAttrs)
                     .subscribeOn(Schedulers.io())
@@ -708,7 +700,7 @@ public class FunctionActivity extends BaseActivity implements FunctionCallback,
 
     public void testRecoverAddressFromSignature(String message, String sig)
     {
-        String prefix = DappBrowserFragment.PERSONAL_MESSAGE_PREFIX + message.length();
+        String prefix = "SUMMA";
         byte[] msgHash = (prefix + message).getBytes();
         String msgBytes = Numeric.toHexString(msgHash);
         Timber.d(msgBytes);

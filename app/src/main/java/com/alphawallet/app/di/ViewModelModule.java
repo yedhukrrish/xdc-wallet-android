@@ -30,7 +30,6 @@ import com.alphawallet.app.router.ImportWalletRouter;
 import com.alphawallet.app.router.ManageWalletsRouter;
 import com.alphawallet.app.router.MyAddressRouter;
 import com.alphawallet.app.router.RedeemSignatureDisplayRouter;
-import com.alphawallet.app.router.SellDetailRouter;
 import com.alphawallet.app.router.TokenDetailRouter;
 import com.alphawallet.app.router.TransferTicketDetailRouter;
 import com.alphawallet.app.service.AnalyticsServiceType;
@@ -154,11 +153,6 @@ public class ViewModelModule {
     @Provides
     ManageWalletsRouter provideManageWalletsRouter() {
         return new ManageWalletsRouter();
-    }
-
-    @Provides
-    SellDetailRouter provideSellDetailRouter() {
-        return new SellDetailRouter();
     }
 
     @Provides

@@ -2,14 +2,11 @@ package com.alphawallet.app.router;
 
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 
 import com.alphawallet.app.C;
 import com.alphawallet.app.entity.Wallet;
 import com.alphawallet.app.entity.tokens.Token;
-import com.alphawallet.app.ui.Erc20DetailActivity;
-import com.alphawallet.app.ui.NFTActivity;
 import com.alphawallet.app.ui.SwapActivity;
 
 public class SwapRouter

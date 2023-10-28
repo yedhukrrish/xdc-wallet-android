@@ -972,15 +972,7 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode)
         {
-            case DappBrowserFragment.REQUEST_CAMERA_ACCESS:
-                getFragment(DAPP_BROWSER).gotCameraAccess(permissions, grantResults);
-                break;
-            case DappBrowserFragment.REQUEST_FILE_ACCESS:
-                getFragment(DAPP_BROWSER).gotFileAccess(permissions, grantResults);
-                break;
-            case DappBrowserFragment.REQUEST_FINE_LOCATION:
-                getFragment(DAPP_BROWSER).gotGeoAccess(permissions, grantResults);
-                break;
+
             case RC_ASSET_EXTERNAL_WRITE_PERM:
                 //Can't get here
                 break;
@@ -1263,10 +1255,6 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
                     if (CustomViewSettings.hideDappBrowser())
                     {
                         return new BaseFragment();
-                    }
-                    else
-                    {
-                        return new DappBrowserFragment();
                     }
                 case SETTINGS:
                     return new NewSettingsFragment();

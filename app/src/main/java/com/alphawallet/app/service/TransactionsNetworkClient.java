@@ -2,12 +2,6 @@ package com.alphawallet.app.service;
 
 import static com.alphawallet.app.repository.EthereumNetworkBase.COVALENT;
 import static com.alphawallet.app.repository.TokensRealmSource.databaseKey;
-import static com.alphawallet.ethereum.EthereumNetworkBase.AURORA_MAINNET_ID;
-import static com.alphawallet.ethereum.EthereumNetworkBase.AURORA_TESTNET_ID;
-import static com.alphawallet.ethereum.EthereumNetworkBase.BINANCE_MAIN_ID;
-import static com.alphawallet.ethereum.EthereumNetworkBase.OKX_ID;
-import static com.alphawallet.ethereum.EthereumNetworkBase.POLYGON_ID;
-import static com.alphawallet.ethereum.EthereumNetworkBase.POLYGON_TEST_ID;
 
 import android.text.TextUtils;
 import android.util.Pair;
@@ -23,8 +17,6 @@ import com.alphawallet.app.entity.NetworkInfo;
 import com.alphawallet.app.entity.Transaction;
 import com.alphawallet.app.entity.TransactionMeta;
 import com.alphawallet.app.entity.Wallet;
-import com.alphawallet.app.entity.tokens.ERC1155Token;
-import com.alphawallet.app.entity.tokens.ERC721Token;
 import com.alphawallet.app.entity.tokens.Token;
 import com.alphawallet.app.entity.tokens.TokenInfo;
 import com.alphawallet.app.entity.transactionAPI.TransferFetchType;
@@ -336,14 +328,6 @@ public class TransactionsNetworkClient implements TransactionsNetworkClientType
     private EtherscanTransaction[] readTransactions(NetworkInfo networkInfo, TokensService svs, String tokenAddress, String lowBlock, String highBlock, boolean ascending, int page) throws JSONException
     {
         if (networkInfo == null) return new EtherscanTransaction[0];
-        if (networkInfo.etherscanAPI.contains(COVALENT))
-        {
-            return readCovalentTransactions(svs, tokenAddress, networkInfo, ascending, page, PAGESIZE);
-        }
-        else if (networkInfo.chainId == OKX_ID)
-        {
-            return new EtherscanTransaction[0];
-        }
 
         String result = null;
         String fullUrl;
@@ -493,13 +477,6 @@ public class TransactionsNetworkClient implements TransactionsNetworkClientType
         List<EtherscanEvent> eventList = new ArrayList<>();
         //get oldest record
         long lastBlockFound = getTokenBlockRead(instance, networkInfo.chainId, tfType);
-
-        if (networkInfo.chainId == OKX_ID)
-        {
-           events = OkLinkService.get(httpClient).getEtherscanEvents(walletAddress, lastBlockFound, tfType);
-           eventList = new ArrayList<>(Arrays.asList(events));
-        }
-        else
         {
             long upperBlock = 99999999999L;
             long lowerBlock = (lastBlockFound == 0) ? 1 : lastBlockFound;
@@ -570,26 +547,7 @@ public class TransactionsNetworkClient implements TransactionsNetworkClientType
 
             int tokenDecimal = calcTokenDecimals(ev0);
 
-            if ((tfType == TransferFetchType.ERC_1155 || ev0.isERC1155(entry.getValue())) &&
-                    (token == null || token.getInterfaceSpec() != ContractType.ERC1155))
-            {
-                token = createNewERC1155Token(entry.getValue().get(0), networkInfo, walletAddress);
-                Timber.tag(TAG).d("Discover ERC1155: " + ev0.tokenName + " (" + ev0.tokenSymbol + ")");
-                newToken = true;
-            }
-            if (tokenDecimal == -1 && (token == null ||
-                    ( token.getInterfaceSpec() != ContractType.ERC721 &&
-                            token.getInterfaceSpec() != ContractType.ERC721_LEGACY &&
-                            token.getInterfaceSpec() != ContractType.ERC721_TICKET &&
-                            token.getInterfaceSpec() != ContractType.ERC721_UNDETERMINED &&
-                            token.getInterfaceSpec() != ContractType.ERC1155)))
-            {
-                token = createNewERC721Token(entry.getValue().get(0), networkInfo, walletAddress, false);
-                token.setTokenWallet(walletAddress);
-                newToken = true;
-                Timber.tag(TAG).d("Discover NFT: " + ev0.tokenName + " (" + ev0.tokenSymbol + ")");
-            }
-            else if (tokenDecimal >= 0 && token == null)
+            if (tokenDecimal >= 0 && token == null)
             {
                 TokenInfo info = new TokenInfo(ev0.contractAddress, ev0.tokenName, ev0.tokenSymbol, tokenDecimal, true, networkInfo.chainId);
                 token = new Token(info, BigDecimal.ZERO, 0, networkInfo.getShortName(),
@@ -724,18 +682,6 @@ public class TransactionsNetworkClient implements TransactionsNetworkClientType
         if (networkInfo.etherscanAPI.contains("etherscan"))
         {
             return ETHERSCAN_API_KEY;
-        }
-        else if (networkInfo.chainId == BINANCE_MAIN_ID)
-        {
-            return BSC_EXPLORER_API_KEY;
-        }
-        else if (networkInfo.chainId == POLYGON_ID || networkInfo.chainId == POLYGON_TEST_ID)
-        {
-            return POLYGONSCAN_API_KEY;
-        }
-        else if (networkInfo.chainId == AURORA_MAINNET_ID || networkInfo.chainId == AURORA_TESTNET_ID)
-        {
-            return AURORASCAN_API_KEY;
         }
         else
         {
@@ -1227,21 +1173,7 @@ public class TransactionsNetworkClient implements TransactionsNetworkClientType
         return tokenIdBI;
     }
 
-    private ERC721Token createNewERC721Token(EtherscanEvent ev, NetworkInfo networkInfo, String walletAddress, boolean knownERC721)
-    {
-        TokenInfo info = new TokenInfo(ev.contractAddress, ev.tokenName, ev.tokenSymbol, 0, false, networkInfo.chainId);
-        ERC721Token newToken = new ERC721Token(info, null, BigDecimal.ZERO, 0, networkInfo.getShortName(), knownERC721 ? ContractType.ERC721 : ContractType.ERC721_UNDETERMINED);
-        newToken.setTokenWallet(walletAddress);
-        return newToken;
-    }
 
-    private ERC1155Token createNewERC1155Token(EtherscanEvent ev, NetworkInfo networkInfo, String walletAddress)
-    {
-        TokenInfo info = new TokenInfo(ev.contractAddress, ev.tokenName, ev.tokenSymbol, 0, false, networkInfo.chainId);
-        ERC1155Token newToken = new ERC1155Token(info, null, 0, networkInfo.getShortName());
-        newToken.setTokenWallet(walletAddress);
-        return newToken;
-    }
 
     private void eraseAllTransactions(Realm instance, long chainId)
     {

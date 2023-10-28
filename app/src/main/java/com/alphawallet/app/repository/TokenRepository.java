@@ -1,7 +1,6 @@
 package com.alphawallet.app.repository;
 
 import static com.alphawallet.ethereum.EthereumNetworkBase.MAINNET_ID;
-import static com.alphawallet.ethereum.EthereumNetworkBase.OKX_ID;
 import static org.web3j.protocol.core.methods.request.Transaction.createEthCallTransaction;
 import static java.util.Arrays.asList;
 
@@ -18,11 +17,9 @@ import com.alphawallet.app.entity.ContractType;
 import com.alphawallet.app.entity.NetworkInfo;
 import com.alphawallet.app.entity.TransferFromEventResponse;
 import com.alphawallet.app.entity.Wallet;
-import com.alphawallet.app.entity.nftassets.NFTAsset;
+
 import com.alphawallet.app.entity.tokendata.TokenGroup;
 import com.alphawallet.app.entity.tokendata.TokenTicker;
-import com.alphawallet.app.entity.tokens.ERC721Ticket;
-import com.alphawallet.app.entity.tokens.ERC721Token;
 import com.alphawallet.app.entity.tokens.Ticket;
 import com.alphawallet.app.entity.tokens.Token;
 import com.alphawallet.app.entity.tokens.TokenCardMeta;
@@ -168,21 +165,6 @@ public class TokenRepository implements TokenRepositoryType {
                             {
                                 type = ContractType.ERC721;
                             }
-                            break;
-                        case ERC1155:
-                            break;
-                        case ERC721:
-                        case ERC721_ENUMERABLE:
-                        case ERC721_LEGACY:
-                            Map<BigInteger, NFTAsset> NFTBalance = t.getTokenAssets(); //add balance from Opensea
-                            t.balance = checkUint256Balance(wallet, tInfo.chainId, tInfo.address); //get balance for wallet from contract
-                            if (TextUtils.isEmpty(tInfo.name + tInfo.symbol)) tInfo = new TokenInfo(tInfo.address, " ", " ", tInfo.decimals, tInfo.isEnabled, tInfo.chainId); //ensure we don't keep overwriting this
-                            t = new ERC721Token(tInfo, NFTBalance, t.balance, System.currentTimeMillis(), t.getNetworkName(), type);
-                            t.lastTxTime = token.lastTxTime;
-                            break;
-                        case ERC721_TICKET:
-                            List<BigInteger> balanceFromOpenSea = t.getArrayBalance();
-                            t = new ERC721Ticket(t.tokenInfo, balanceFromOpenSea, System.currentTimeMillis(), t.getNetworkName(), ContractType.ERC721_TICKET);
                             break;
                         default:
                             type = ContractType.ERC721;
@@ -354,7 +336,6 @@ public class TokenRepository implements TokenRepositoryType {
                 .subscribeOn(Schedulers.io());
     }
 
-    @Override
     public void updateAssets(String wallet, Token nftToken, List<BigInteger> additions, List<BigInteger> removals)
     {
         if (nftToken.isERC721())
@@ -362,21 +343,8 @@ public class TokenRepository implements TokenRepositoryType {
             nftToken.balance = checkUint256Balance(new Wallet(wallet), nftToken.tokenInfo.chainId, nftToken.getAddress());
         }
 
-        localSource.updateNFTAssets(wallet, nftToken,
-                additions, removals);
     }
 
-    @Override
-    public void storeAsset(String wallet, Token token, BigInteger tokenId, NFTAsset asset)
-    {
-        localSource.storeAsset(wallet, token, tokenId, asset);
-    }
-
-    @Override
-    public Token initNFTAssets(Wallet wallet, Token token)
-    {
-        return localSource.initNFTAssets(wallet, token);
-    }
 
     @Override
     public Single<String> resolveENS(long chainId, String ensName)
@@ -400,10 +368,6 @@ public class TokenRepository implements TokenRepositoryType {
     @Override
     public Single<TokenInfo> update(String contractAddr, long chainId, ContractType type)
     {
-        if (chainId == OKX_ID)
-        {
-            return tokenInfoFromOKLinkService(contractAddr); //don't need type here, we can determine that from the return
-        }
 
         switch (type)
         {
@@ -646,10 +610,7 @@ public class TokenRepository implements TokenRepositoryType {
                     if (testBalance.size() > 0)
                     {
                         token = checkInterface(token, wallet).onErrorReturnItem(token).blockingGet();
-                        if (token.getInterfaceSpec() == ContractType.ERC721_TICKET)
-                        {
-                            for (BigInteger tokenId : testBalance) { token.addAssetToTokenBalanceAssets(tokenId, null); }
-                        }
+
                     }
                 }
                 else if (balance.equals(BigDecimal.valueOf(32)) && responseValue.length() > 66)

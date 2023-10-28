@@ -1,7 +1,7 @@
 package com.alphawallet.app.entity;
 
 import static com.alphawallet.app.repository.EthereumNetworkBase.COVALENT;
-import static com.alphawallet.ethereum.EthereumNetworkBase.GOERLI_ID;
+
 
 import android.net.Uri;
 import android.text.TextUtils;
@@ -65,10 +65,7 @@ public class NetworkInfo extends com.alphawallet.ethereum.NetworkInfo
         {
             return new TransferFetchType[0];
         }
-        else if (chainId == GOERLI_ID || etherscanAPI.startsWith(ARBISCAN_API))
-        {
-            return new TransferFetchType[]{TransferFetchType.ERC_20, TransferFetchType.ERC_721};
-        }
+
         else if (etherscanAPI.contains(MATIC_API) || etherscanAPI.contains(ETHERSCAN_API) || etherscanAPI.contains(OKX_API))
         {
             return new TransferFetchType[]{TransferFetchType.ERC_20, TransferFetchType.ERC_721, TransferFetchType.ERC_1155};

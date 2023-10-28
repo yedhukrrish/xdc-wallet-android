@@ -12,7 +12,7 @@
  */
 package com.alphawallet.app.web3j.ens;
 
-import static com.alphawallet.ethereum.EthereumNetworkBase.GOERLI_ID;
+
 import static com.alphawallet.ethereum.EthereumNetworkBase.MAINNET_ID;
 
 /** ENS registry contract addresses. */
@@ -23,10 +23,8 @@ public class Contracts {
 
     public static String resolveRegistryContract(long chainId) {
         if (chainId == MAINNET_ID) {
-            return MAINNET;
-        } else if (chainId == GOERLI_ID) {
-            return GOERLI;
-        } else {
+            return MAINNET;}
+        else {
             throw new EnsResolutionException(
                     "Unable to resolve ENS registry contract for network id: " + chainId);
         }

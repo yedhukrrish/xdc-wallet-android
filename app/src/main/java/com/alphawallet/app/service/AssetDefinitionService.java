@@ -29,7 +29,7 @@ import com.alphawallet.app.entity.FragmentMessenger;
 import com.alphawallet.app.entity.QueryResponse;
 import com.alphawallet.app.entity.TokenLocator;
 import com.alphawallet.app.entity.Wallet;
-import com.alphawallet.app.entity.nftassets.NFTAsset;
+
 import com.alphawallet.app.entity.tokens.Attestation;
 import com.alphawallet.app.entity.tokens.Token;
 import com.alphawallet.app.entity.tokenscript.EventUtils;
@@ -675,10 +675,7 @@ public class AssetDefinitionService implements ParseResult, AttributeInterface
                 if (attrEntry.getValue().usesTokenId())
                 {
                     //run through each tokenId and update
-                    for (BigInteger tokenId : token.getTokenAssets().keySet())
-                    {
-                        updateAttributeResult(token, td, attrEntry.getValue(), tokenId);
-                    }
+
                 }
                 else
                 {
@@ -2690,33 +2687,6 @@ public class AssetDefinitionService implements ParseResult, AttributeInterface
     }
 
 
-    //private Token
-
-    private void addOpenSeaAttributes(StringBuilder attrs, Token token, BigInteger tokenId)
-    {
-        NFTAsset tokenAsset = token.getAssetForToken(tokenId.toString());
-        if (tokenAsset == null) return;
-
-        try
-        {
-            //add all asset IDs
-            if (tokenAsset.getBackgroundColor() != null)
-                TokenScriptResult.addPair(attrs, "background_colour", URLEncoder.encode(tokenAsset.getBackgroundColor(), "utf-8"));
-            if (tokenAsset.getThumbnail() != null)
-                TokenScriptResult.addPair(attrs, "image_preview_url", tokenAsset.getThumbnail());
-            if (tokenAsset.getDescription() != null)
-                TokenScriptResult.addPair(attrs, "description", URLEncoder.encode(tokenAsset.getDescription(), "utf-8"));
-            if (tokenAsset.getExternalLink() != null)
-                TokenScriptResult.addPair(attrs, "external_link", tokenAsset.getExternalLink());
-            //if (tokenAsset.getTraits() != null) TokenScriptResult.addPair(attrs, "traits", tokenAsset.getTraits());
-            if (tokenAsset.getName() != null)
-                TokenScriptResult.addPair(attrs, "metadata_name", tokenAsset.getName());
-        }
-        catch (UnsupportedEncodingException e)
-        {
-            //
-        }
-    }
 
     public StringBuilder getTokenAttrs(Token token, BigInteger tokenId, int count)
     {
@@ -2736,11 +2706,6 @@ public class AssetDefinitionService implements ParseResult, AttributeInterface
         TokenScriptResult.addPair(attrs, "chainId", BigInteger.valueOf(token.tokenInfo.chainId));
         TokenScriptResult.addPair(attrs, "tokenId", tokenId);
         TokenScriptResult.addPair(attrs, "ownerAddress", token.getWallet());
-
-        if (token.isNonFungible())
-        {
-            addOpenSeaAttributes(attrs, token, tokenId);
-        }
 
         if (token.isEthereum())
         {

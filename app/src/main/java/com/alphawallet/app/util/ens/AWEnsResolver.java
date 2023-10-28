@@ -7,7 +7,6 @@ import androidx.preference.PreferenceManager;
 
 import com.alphawallet.app.C;
 import com.alphawallet.app.entity.UnableToResolveENS;
-import com.alphawallet.app.service.OpenSeaService;
 import com.alphawallet.app.util.Utils;
 import com.alphawallet.app.web3j.ens.EnsResolutionException;
 import org.web3j.utils.Numeric;
@@ -147,9 +146,7 @@ public class AWEnsResolver
             String url = "";
             switch (getLocatorType(locator))
             {
-                case EIP155:
-                    url = getEip155Url(locator);
-                    break;
+
                 case IPFS:
                     url = Utils.parseIPFS(locator);
                     break;
@@ -178,7 +175,7 @@ public class AWEnsResolver
                 String tokenAddress = Numeric.prependHexPrefix(matcher.group(6));
                 String tokenId = matcher.group(8);
 
-                String asset = new OpenSeaService().fetchAsset(chainId, tokenAddress, tokenId);
+                String asset = "QWERTYUI";
                 JSONObject assetObj = new JSONObject(asset);
                 String url = assetObj.getString(OPENSEA_IMAGE_PREVIEW);
                 if (!TextUtils.isEmpty(url) && url.endsWith(".svg"))

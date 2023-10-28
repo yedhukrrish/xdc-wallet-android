@@ -4,7 +4,7 @@ import android.util.Pair;
 
 import com.alphawallet.app.entity.ContractType;
 import com.alphawallet.app.entity.Wallet;
-import com.alphawallet.app.entity.nftassets.NFTAsset;
+
 import com.alphawallet.app.entity.tokendata.TokenGroup;
 import com.alphawallet.app.entity.tokendata.TokenTicker;
 import com.alphawallet.app.entity.tokens.Attestation;
@@ -40,8 +40,6 @@ public interface TokenLocalSource
 
     void storeTokenUrl(long chainId, String address, String imageUrl);
 
-    Token initNFTAssets(Wallet wallet, Token tokens);
-
     Single<TokenCardMeta[]> fetchTokenMetas(Wallet wallet, List<Long> networkFilters,
                                             AssetDefinitionService svs);
 
@@ -73,10 +71,6 @@ public interface TokenLocalSource
     void setVisibilityChanged(Wallet wallet, ContractAddress cAddr);
 
     boolean getEnabled(Token token);
-
-    void updateNFTAssets(String wallet, Token erc721Token, List<BigInteger> additions, List<BigInteger> removals);
-
-    void storeAsset(String wallet, Token token, BigInteger tokenId, NFTAsset asset);
 
     Single<Pair<Double, Double>> getTotalValue(String currentAddress, List<Long> networkFilters);
 

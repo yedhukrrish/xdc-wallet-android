@@ -1,12 +1,10 @@
 package com.alphawallet.app.util;
 
-import static com.alphawallet.ethereum.EthereumNetworkBase.AVALANCHE_ID;
-import static com.alphawallet.ethereum.EthereumNetworkBase.BINANCE_MAIN_ID;
+
 import static com.alphawallet.ethereum.EthereumNetworkBase.CLASSIC_ID;
-import static com.alphawallet.ethereum.EthereumNetworkBase.GNOSIS_ID;
+
 import static com.alphawallet.ethereum.EthereumNetworkBase.MAINNET_ID;
-import static com.alphawallet.ethereum.EthereumNetworkBase.OPTIMISTIC_MAIN_ID;
-import static com.alphawallet.ethereum.EthereumNetworkBase.POLYGON_ID;
+
 
 import android.app.Activity;
 import android.content.Context;
@@ -903,11 +901,6 @@ public class Utils
     {
         {
             put(CLASSIC_ID, "classic");
-            put(GNOSIS_ID, "xdai");
-            put(BINANCE_MAIN_ID, "smartchain");
-            put(AVALANCHE_ID, "avalanche");
-            put(OPTIMISTIC_MAIN_ID, "optimism");
-            put(POLYGON_ID, "polygon");
             put(MAINNET_ID, "ethereum");
         }
     };

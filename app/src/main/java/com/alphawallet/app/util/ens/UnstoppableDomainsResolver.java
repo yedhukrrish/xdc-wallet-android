@@ -70,10 +70,7 @@ public class UnstoppableDomainsResolver implements Resolvable
         {
             return ethAddress;
         }
-        else if (chainId == EthereumNetworkBase.POLYGON_ID)
-        {
-            return maticAddress;
-        }
+
         else
         {
             if (!TextUtils.isEmpty(ethAddress))

@@ -1,9 +1,9 @@
 package com.alphawallet.app.entity.attestation;
 
 import static com.alphawallet.app.entity.tokenscript.TokenscriptFunction.ZERO_ADDRESS;
-import static com.alphawallet.ethereum.EthereumNetworkBase.ARBITRUM_MAIN_ID;
+
 import static com.alphawallet.ethereum.EthereumNetworkBase.MAINNET_ID;
-import static com.alphawallet.ethereum.EthereumNetworkBase.SEPOLIA_TESTNET_ID;
+
 
 import android.text.TextUtils;
 
@@ -628,14 +628,6 @@ public class ImportAttestation
         {
             return "0xA1207F3BBa224E2c9c3c6D5aF63D0eb1582Ce587";
         }
-        else if (chainId == ARBITRUM_MAIN_ID)
-        {
-            return "0xbD75f629A22Dc1ceD33dDA0b68c546A1c035c458";
-        }
-        else if (chainId == SEPOLIA_TESTNET_ID)
-        {
-            return "0xC2679fBD37d54388Ce493F1DB75320D236e1815e";
-        }
         else
         {
             //Support Optimism Goerli (0xC2679fBD37d54388Ce493F1DB75320D236e1815e)
@@ -648,14 +640,6 @@ public class ImportAttestation
         if (chainId == MAINNET_ID)
         {
             return "0xA7b39296258348C78294F95B872b282326A97BDF";
-        }
-        else if (chainId == ARBITRUM_MAIN_ID)
-        {
-            return "0xA310da9c5B885E7fb3fbA9D66E9Ba6Df512b78eB";
-        }
-        else if (chainId == SEPOLIA_TESTNET_ID)
-        {
-            return "0x0a7E2Ff54e76B8E6659aedc9103FB21c038050D0";
         }
         else
         {
@@ -671,14 +655,6 @@ public class ImportAttestation
         {
             return "";
         }
-        else if (chainId == ARBITRUM_MAIN_ID)
-        {
-            return "0x5f0437f7c1db1f8e575732ca52cc8ad899b3c9fe38b78b67ff4ba7c37a8bf3b4";
-        }
-        else if (chainId == SEPOLIA_TESTNET_ID)
-        {
-            return "0x4455598d3ec459c4af59335f7729fea0f50ced46cb1cd67914f5349d44142ec1";
-        }
         else
         {
             //Support Optimism Goerli (0x7b24C7f8AF365B4E308b6acb0A7dfc85d034Cb3f)
@@ -692,14 +668,6 @@ public class ImportAttestation
         if (chainId == MAINNET_ID)
         {
             return "";
-        }
-        else if (chainId == ARBITRUM_MAIN_ID)
-        {
-            return "0xe5c2bfd98a1b35573610b4e5a367bbcb5c736e42508a33fd6046bad63eaf18f9";
-        }
-        else if (chainId == SEPOLIA_TESTNET_ID)
-        {
-            return "0xee99de42f544fa9a47caaf8d4a4426c1104b6d7a9df7f661f892730f1b5b1e23";
         }
         else
         {

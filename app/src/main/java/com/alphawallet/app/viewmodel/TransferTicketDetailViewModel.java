@@ -17,7 +17,7 @@ import com.alphawallet.app.entity.Operation;
 import com.alphawallet.app.entity.SignAuthenticationCallback;
 import com.alphawallet.app.entity.TransactionReturn;
 import com.alphawallet.app.entity.Wallet;
-import com.alphawallet.app.entity.nftassets.NFTAsset;
+
 import com.alphawallet.app.entity.tokens.Token;
 import com.alphawallet.app.interact.CreateTransactionInteract;
 import com.alphawallet.app.interact.FetchTransactionsInteract;
@@ -237,20 +237,7 @@ public class TransferTicketDetailViewModel extends BaseViewModel implements Tran
         }
     }
 
-    public void createTokenTransfer(String to, Token token, ArrayList<Pair<BigInteger, NFTAsset>> transferList)
-    {
-        //need to determine the spec
-        disposable = fetchTransactionsInteract.queryInterfaceSpec(token.tokenInfo)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(spec -> onInterfaceSpec(spec, to, token, transferList), this::onError);
-    }
 
-    private void onInterfaceSpec(ContractType spec, String to, Token token, ArrayList<Pair<BigInteger, NFTAsset>> transferList)
-    {
-        token.setInterfaceSpec(spec);
-        createTokenTransfer(to, token, transferList);
-    }
 
     private void onInterfaceSpec(ContractType spec, String to, Token token, List<BigInteger> transferList)
     {

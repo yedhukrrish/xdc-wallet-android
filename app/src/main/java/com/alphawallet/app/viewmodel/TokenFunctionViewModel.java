@@ -25,8 +25,7 @@ import com.alphawallet.app.entity.Transaction;
 import com.alphawallet.app.entity.TransactionReturn;
 import com.alphawallet.app.entity.Wallet;
 import com.alphawallet.app.entity.WalletType;
-import com.alphawallet.app.entity.nftassets.NFTAsset;
-import com.alphawallet.app.entity.opensea.OpenSeaAsset;
+
 import com.alphawallet.app.entity.tokens.Token;
 import com.alphawallet.app.interact.CreateTransactionInteract;
 import com.alphawallet.app.interact.FetchTransactionsInteract;
@@ -36,21 +35,14 @@ import com.alphawallet.app.service.AnalyticsServiceType;
 import com.alphawallet.app.service.AssetDefinitionService;
 import com.alphawallet.app.service.GasService;
 import com.alphawallet.app.service.KeyService;
-import com.alphawallet.app.service.OpenSeaService;
 import com.alphawallet.app.service.TokensService;
 import com.alphawallet.app.service.TransactionSendHandlerInterface;
 import com.alphawallet.app.ui.AssetDisplayActivity;
-import com.alphawallet.app.ui.Erc1155AssetSelectActivity;
 import com.alphawallet.app.ui.Erc20DetailActivity;
 import com.alphawallet.app.ui.FunctionActivity;
 import com.alphawallet.app.ui.MyAddressActivity;
-import com.alphawallet.app.ui.RedeemAssetSelectActivity;
-import com.alphawallet.app.ui.SellDetailActivity;
-import com.alphawallet.app.ui.TransferNFTActivity;
 import com.alphawallet.app.ui.TransferTicketDetailActivity;
-import com.alphawallet.app.ui.widget.entity.TicketRangeParcel;
 import com.alphawallet.app.util.BalanceUtils;
-import com.alphawallet.app.util.JsonUtils;
 import com.alphawallet.app.util.Utils;
 import com.alphawallet.app.web3.entity.Address;
 import com.alphawallet.app.web3.entity.Web3Transaction;
@@ -61,16 +53,12 @@ import com.alphawallet.token.entity.FunctionDefinition;
 import com.alphawallet.token.entity.MethodArg;
 import com.alphawallet.token.entity.SigReturnType;
 import com.alphawallet.token.entity.TSAction;
-import com.alphawallet.token.entity.TicketRange;
 import com.alphawallet.token.entity.TokenScriptResult;
 import com.alphawallet.token.entity.TokenscriptElement;
 import com.alphawallet.token.entity.XMLDsigDescriptor;
 import com.alphawallet.token.tools.TokenDefinition;
-import com.google.gson.Gson;
 
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.web3j.utils.Numeric;
 
 import java.math.BigDecimal;
@@ -105,7 +93,7 @@ public class TokenFunctionViewModel extends BaseViewModel implements Transaction
     private final EthereumNetworkRepositoryType ethereumNetworkRepository;
     private final KeyService keyService;
     private final GenericWalletInteract genericWalletInteract;
-    private final OpenSeaService openseaService;
+
     private final FetchTransactionsInteract fetchTransactionsInteract;
     private final MutableLiveData<Token> insufficientFunds = new MutableLiveData<>();
     private final MutableLiveData<String> invalidAddress = new MutableLiveData<>();
@@ -117,7 +105,6 @@ public class TokenFunctionViewModel extends BaseViewModel implements Transaction
     private final MutableLiveData<TransactionReturn> transactionError = new MutableLiveData<>();
     private final MutableLiveData<Web3Transaction> gasEstimateComplete = new MutableLiveData<>();
     private final MutableLiveData<Pair<GasEstimate, Web3Transaction>> gasEstimateError = new MutableLiveData<>();
-    private final MutableLiveData<NFTAsset> nftAsset = new MutableLiveData<>();
     private final MutableLiveData<Boolean> scriptUpdateInProgress = new MutableLiveData<>();
     private Wallet wallet;
 
@@ -142,7 +129,6 @@ public class TokenFunctionViewModel extends BaseViewModel implements Transaction
             EthereumNetworkRepositoryType ethereumNetworkRepository,
             KeyService keyService,
             GenericWalletInteract genericWalletInteract,
-            OpenSeaService openseaService,
             FetchTransactionsInteract fetchTransactionsInteract,
             AnalyticsServiceType analyticsService)
     {
@@ -153,7 +139,6 @@ public class TokenFunctionViewModel extends BaseViewModel implements Transaction
         this.ethereumNetworkRepository = ethereumNetworkRepository;
         this.keyService = keyService;
         this.genericWalletInteract = genericWalletInteract;
-        this.openseaService = openseaService;
         this.fetchTransactionsInteract = fetchTransactionsInteract;
         setAnalyticsService(analyticsService);
     }
@@ -218,28 +203,12 @@ public class TokenFunctionViewModel extends BaseViewModel implements Transaction
         return gasEstimateError;
     }
 
-    public MutableLiveData<NFTAsset> nftAsset()
-    {
-        return nftAsset;
-    }
-
     public void prepare()
     {
         getCurrentWallet();
     }
 
-    public void openUniversalLink(Context context, Token token, List<BigInteger> selection)
-    {
-        Intent intent = new Intent(context, SellDetailActivity.class);
-        intent.putExtra(C.Key.WALLET, wallet);
-        intent.putExtra(C.EXTRA_CHAIN_ID, token.tokenInfo.chainId);
-        intent.putExtra(C.EXTRA_ADDRESS, token.getAddress());
-        intent.putExtra(C.EXTRA_TOKENID_LIST, Utils.bigIntListToString(selection, false));
-        intent.putExtra(C.EXTRA_STATE, SellDetailActivity.SET_A_PRICE);
-        intent.putExtra(C.EXTRA_PRICE, 0);
-        intent.setFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
-        context.startActivity(intent);
-    }
+
 
     @Override
     protected void onCleared()
@@ -270,17 +239,13 @@ public class TokenFunctionViewModel extends BaseViewModel implements Transaction
         ctx.startActivity(intent);
     }
 
-    public void showFunction(Context ctx, Token token, String method, List<BigInteger> tokenIds, NFTAsset asset)
+    public void showFunction(Context ctx, Token token, String method, List<BigInteger> tokenIds)
     {
         Intent intent = new Intent(ctx, FunctionActivity.class);
         intent.putExtra(C.EXTRA_CHAIN_ID, token.tokenInfo.chainId);
         intent.putExtra(C.EXTRA_ADDRESS, token.getAddress());
         intent.putExtra(C.Key.WALLET, wallet);
         intent.putExtra(C.EXTRA_STATE, method);
-        if (asset != null)
-        {
-            intent.putExtra(C.EXTRA_NFTASSET, asset);
-        }
 
         if (tokenIds == null || tokenIds.size() == 0)
         {
@@ -330,17 +295,6 @@ public class TokenFunctionViewModel extends BaseViewModel implements Transaction
     public Token getToken(long chainId, String contractAddress)
     {
         return tokensService.getToken(chainId, contractAddress);
-    }
-
-    public void selectRedeemToken(Context ctx, Token token, List<BigInteger> idList)
-    {
-        TicketRangeParcel parcel = new TicketRangeParcel(new TicketRange(idList, token.getAddress(), true));
-        Intent intent = new Intent(ctx, RedeemAssetSelectActivity.class);
-        intent.putExtra(C.EXTRA_CHAIN_ID, token.tokenInfo.chainId);
-        intent.putExtra(C.EXTRA_ADDRESS, token.getAddress());
-        intent.putExtra(C.Key.TICKET_RANGE, parcel);
-        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        ctx.startActivity(intent);
     }
 
     public void stopGasSettingsFetch()
@@ -403,29 +357,8 @@ public class TokenFunctionViewModel extends BaseViewModel implements Transaction
         ctx.startActivity(intent);
     }
 
-    public void selectRedeemTokens(Context ctx, Token token, List<BigInteger> idList)
-    {
-        TicketRangeParcel parcel = new TicketRangeParcel(new TicketRange(idList, token.getAddress(), true));
-        Intent intent = new Intent(ctx, RedeemAssetSelectActivity.class);
-        intent.putExtra(C.EXTRA_CHAIN_ID, token.tokenInfo.chainId);
-        intent.putExtra(C.EXTRA_ADDRESS, token.getAddress());
-        intent.putExtra(C.Key.TICKET_RANGE, parcel);
-        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        ctx.startActivity(intent);
-    }
 
-    public void sellTicketRouter(Context context, Token token, List<BigInteger> idList)
-    {
-        Intent intent = new Intent(context, SellDetailActivity.class);
-        intent.putExtra(C.Key.WALLET, wallet);
-        intent.putExtra(C.EXTRA_CHAIN_ID, token.tokenInfo.chainId);
-        intent.putExtra(C.EXTRA_ADDRESS, token.getAddress());
-        intent.putExtra(C.EXTRA_TOKENID_LIST, Utils.bigIntListToString(idList, false));
-        intent.putExtra(C.EXTRA_STATE, SellDetailActivity.SET_A_PRICE);
-        intent.putExtra(C.EXTRA_PRICE, 0);
-        intent.setFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
-        context.startActivity(intent);
-    }
+
 
     public Web3Transaction handleFunction(TSAction action, BigInteger tokenId, Token token, Context context)
     {
@@ -579,11 +512,6 @@ public class TokenFunctionViewModel extends BaseViewModel implements Transaction
         gasService.stopGasPriceCycle();
     }
 
-    public OpenSeaService getOpenseaService()
-    {
-        return openseaService;
-    }
-
     public void updateTokenScriptViewSize(Token token, int itemViewHeight)
     {
         assetDefinitionService.storeTokenViewHeight(token.tokenInfo.chainId, token.getAddress(), itemViewHeight);
@@ -725,182 +653,8 @@ public class TokenFunctionViewModel extends BaseViewModel implements Transaction
         track(Analytics.Action.ACTION_SHEET_COMPLETED, props);
     }
 
-    public Single<Intent> showTransferSelectCount(Context ctx, Token token, BigInteger tokenId)
-    {
-        return genericWalletInteract.find()
-                .map(wallet -> completeTransferSelect(ctx, token, tokenId, wallet));
-    }
 
-    private Intent completeTransferSelect(Context ctx, Token token, BigInteger tokenId, Wallet wallet)
-    {
-        Intent intent = new Intent(ctx, Erc1155AssetSelectActivity.class);
-        intent.putExtra(C.Key.WALLET, wallet);
-        intent.putExtra(C.EXTRA_CHAIN_ID, token.tokenInfo.chainId);
-        intent.putExtra(C.EXTRA_ADDRESS, token.getAddress());
-        intent.putExtra(C.EXTRA_TOKEN_ID, tokenId.toString(16));
-        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        return intent;
-    }
 
-    public Intent getTransferIntent(Context ctx, Token token, List<BigInteger> tokenIds, ArrayList<NFTAsset> selection)
-    {
-        return completeTransferIntent(ctx, token, tokenIds, selection, getWallet());
-    }
-
-    private Intent completeTransferIntent(Context ctx, Token token, List<BigInteger> tokenIds, ArrayList<NFTAsset> selection, Wallet wallet)
-    {
-        Intent intent = new Intent(ctx, TransferNFTActivity.class);
-        intent.putExtra(C.Key.WALLET, wallet.address);
-        intent.putExtra(C.EXTRA_CHAIN_ID, token.tokenInfo.chainId);
-        intent.putExtra(C.EXTRA_ADDRESS, token.getAddress());
-        intent.putExtra(C.EXTRA_TOKENID_LIST, Utils.bigIntListToString(tokenIds, true));
-        intent.putParcelableArrayListExtra(C.EXTRA_NFTASSET_LIST, selection);
-        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        return intent;
-    }
-
-    private NFTAsset storeAsset(Token token, BigInteger tokenId, NFTAsset fetchedAsset, NFTAsset oldAsset)
-    {
-        fetchedAsset.updateFromRaw(oldAsset);
-        tokensService.storeAsset(token, tokenId, fetchedAsset);
-        token.addAssetToTokenBalanceAssets(tokenId, fetchedAsset);
-        return fetchedAsset;
-    }
-
-    public void getTokenMetadata(Token token, BigInteger tokenId, NFTAsset oldAsset)
-    {
-        metadataDisposable = Single.fromCallable(() -> token.fetchTokenMetadata(tokenId))
-                .map(fetchedAsset -> storeAsset(token, tokenId, fetchedAsset, oldAsset))
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::onAssetMetadata, this::onAssetMetadataError);
-    }
-
-    private void onAssetMetadataError(Throwable t)
-    {
-        Timber.w(t);
-    }
-
-    private void onAssetMetadata(NFTAsset asset)
-    {
-        nftAsset.postValue(asset);
-    }
-
-    private void loadExistingMetadata(Token token, BigInteger tokenId)
-    {
-        NFTAsset asset = token.getAssetForToken(tokenId);
-        if (asset != null && !asset.needsLoading())
-        {
-            nftAsset.postValue(asset);
-        }
-    }
-
-    public void getAsset(Token token, BigInteger tokenId)
-    {
-        loadExistingMetadata(token, tokenId);
-
-        reloadMetadata(token, tokenId);
-    }
-
-    public void reloadMetadata(Token token, BigInteger tokenId)
-    {
-        openseaDisposable = openseaService.getAsset(token, tokenId)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(result -> onAsset(result, token, tokenId), this::onAssetError);
-    }
-
-    public void getCollection(Token token, BigInteger tokenId, NFTAsset asset, OpenSeaAsset osAsset)
-    {
-        openseaDisposable = openseaService.getCollection(token, osAsset.collection.slug)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(result -> onCollection(token, tokenId, asset, osAsset, result), this::onAssetError);
-    }
-
-    private void onCollection(Token token, BigInteger tokenId, NFTAsset asset, OpenSeaAsset osAsset, String result)
-    {
-        NFTAsset oldAsset = token.getAssetForToken(tokenId);
-        if (JsonUtils.isValidCollection(result))
-        {
-            try
-            {
-                JSONObject assetJson = new JSONObject(result);
-                if (assetJson.has("collection"))
-                {
-                    String collectionData = assetJson.get("collection").toString();
-                    OpenSeaAsset.Collection data = new Gson().fromJson(collectionData, OpenSeaAsset.Collection.class);
-                    if (data != null)
-                    {
-                        osAsset.collection = data;
-                    }
-                }
-            }
-            catch (JSONException e)
-            {
-                Timber.w(e);
-                Timber.d("Error fetching from OpenSea: %s", result);
-            }
-            catch (Exception e)
-            {
-                Timber.w(e);
-            }
-        }
-
-        storeAsset(token, tokenId, asset, oldAsset);
-        asset.attachOpenSeaAssetData(osAsset);
-        nftAsset.postValue(asset);
-    }
-
-    private void onAssetError(Throwable throwable)
-    {
-        Timber.d(throwable);
-    }
-
-    private void onAsset(String result, Token token, BigInteger tokenId)
-    {
-        NFTAsset oldAsset = token.getAssetForToken(tokenId);
-        boolean loadedFromApi = false;
-        if (JsonUtils.isValidAsset(result))
-        {
-            try
-            {
-                JSONObject assetJson = new JSONObject(result);
-                OpenSeaAsset osAsset = new Gson().fromJson(assetJson.toString(), OpenSeaAsset.class);
-                NFTAsset asset = new NFTAsset(result);
-                if (!TextUtils.isEmpty(asset.getImage()))
-                {
-                    loadedFromApi = true;
-
-                    // If slug is available, check for more collection data
-                    if (osAsset.collection != null && !TextUtils.isEmpty(osAsset.collection.slug))
-                    {
-                        getCollection(token, tokenId, asset, osAsset);
-                    }
-                    else
-                    {
-                        storeAsset(token, tokenId, asset, oldAsset);
-                        asset.attachOpenSeaAssetData(osAsset);
-                        nftAsset.postValue(asset);
-                    }
-                }
-            }
-            catch (JSONException e)
-            {
-                Timber.w(e);
-                Timber.d("Error fetching from OpenSea: %s", result);
-            }
-            catch (Exception e)
-            {
-                Timber.w(e);
-            }
-        }
-
-        if (!loadedFromApi)
-        {
-            getTokenMetadata(token, tokenId, oldAsset);
-        }
-    }
 
     public String getBrowserRPC(long chainId)
     {
@@ -992,23 +746,7 @@ public class TokenFunctionViewModel extends BaseViewModel implements Transaction
     }
 
 
-    public String addAttestationAttrs(NFTAsset asset, Token token, TSAction action)
-    {
-        StringBuilder attrs = new StringBuilder();
-        if (asset != null && asset.isAttestation())
-        {
-            List<TokenScriptResult.Attribute> attestationAttrs = assetDefinitionService.getAttestationAttrs(token, action, asset.getAttestationID());
-            if (attestationAttrs != null)
-            {
-                for (TokenScriptResult.Attribute attr : attestationAttrs)
-                {
-                    onAttr(attrs, attr);
-                }
-            }
-        }
 
-        return attrs.toString();
-    }
 
     private void onAttr(StringBuilder attrs, TokenScriptResult.Attribute attribute)
     {

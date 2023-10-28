@@ -50,13 +50,11 @@ import com.alphawallet.app.entity.StandardFunctionInterface;
 import com.alphawallet.app.entity.TransactionReturn;
 import com.alphawallet.app.entity.WalletType;
 import com.alphawallet.hardware.SignatureFromKey;
-import com.alphawallet.app.entity.tokens.ERC721Token;
 import com.alphawallet.app.entity.tokens.Token;
 import com.alphawallet.app.repository.EthereumNetworkBase;
 import com.alphawallet.app.service.GasService;
 import com.alphawallet.app.ui.QRScanning.QRScannerActivity;
 import com.alphawallet.app.ui.widget.TokensAdapterCallback;
-import com.alphawallet.app.ui.widget.adapter.NonFungibleTokenAdapter;
 import com.alphawallet.app.ui.widget.entity.ActionSheetCallback;
 import com.alphawallet.app.ui.widget.entity.AddressReadyCallback;
 import com.alphawallet.app.util.KeyboardUtils;
@@ -107,7 +105,6 @@ public class TransferTicketDetailActivity extends BaseActivity
     private AWalletAlertDialog dialog;
     private FunctionButtonBar functionBar;
     private Token token;
-    private NonFungibleTokenAdapter adapter;
     private TextView validUntil;
     private TextView textQuantity;
     private String ticketIds;
@@ -191,9 +188,7 @@ public class TransferTicketDetailActivity extends BaseActivity
 
         //we should import a token and a list of chosen ids
         RecyclerView list = findViewById(R.id.listTickets);
-        adapter = new NonFungibleTokenAdapter(null, token, selection, viewModel.getAssetDefinitionService());
-        list.setLayoutManager(new LinearLayoutManager(this));
-        list.setAdapter(adapter);
+
 
         textQuantity = findViewById(R.id.text_quantity);
         validUntil = findViewById(R.id.text_valid_until);
@@ -280,12 +275,7 @@ public class TransferTicketDetailActivity extends BaseActivity
         RelativeLayout plusButton = findViewById(R.id.layout_quantity_add);
         plusButton.setOnClickListener(v -> {
             int quantity = Integer.parseInt(textQuantity.getText().toString());
-            if ((quantity + 1) <= adapter.getTicketRangeCount())
-            {
-                quantity++;
-                textQuantity.setText(String.valueOf(quantity));
-                selection = token.pruneIDList(ticketIds, quantity);
-            }
+
         });
 
         RelativeLayout minusButton = findViewById(R.id.layout_quantity_minus);
@@ -804,14 +794,10 @@ public class TransferTicketDetailActivity extends BaseActivity
         }
         else
         {
-            if (token instanceof ERC721Token)
-            {
-                calculateTransactionCost();
-            }
-            else
-            {
+
+
                 handleERC875Transfer(address, ensName);
-            }
+
         }
     }
 

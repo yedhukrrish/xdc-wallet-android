@@ -18,7 +18,7 @@ import com.alphawallet.app.entity.CustomViewSettings;
 import com.alphawallet.app.entity.NetworkInfo;
 import com.alphawallet.app.entity.ServiceSyncCallback;
 import com.alphawallet.app.entity.Wallet;
-import com.alphawallet.app.entity.nftassets.NFTAsset;
+
 import com.alphawallet.app.entity.tokendata.TokenGroup;
 import com.alphawallet.app.entity.tokendata.TokenTicker;
 import com.alphawallet.app.entity.tokendata.TokenUpdateType;
@@ -72,7 +72,7 @@ public class TokensService
     private final EthereumNetworkRepositoryType ethereumNetworkRepository;
     private final TokenRepositoryType tokenRepository;
     private final TickerService tickerService;
-    private final OpenSeaService openseaService;
+
     private final AnalyticsServiceType<AnalyticsProperties> analyticsService;
     private final List<Long> networkFilter;
     private ContractLocator focusToken;
@@ -108,12 +108,10 @@ public class TokensService
     public TokensService(EthereumNetworkRepositoryType ethereumNetworkRepository,
                          TokenRepositoryType tokenRepository,
                          TickerService tickerService,
-                         OpenSeaService openseaService,
                          AnalyticsServiceType<AnalyticsProperties> analyticsService) {
         this.ethereumNetworkRepository = ethereumNetworkRepository;
         this.tokenRepository = tokenRepository;
         this.tickerService = tickerService;
-        this.openseaService = openseaService;
         this.analyticsService = analyticsService;
         networkFilter = new ArrayList<>();
         setupFilter(ethereumNetworkRepository.hasSetNetworkFilters());
@@ -207,7 +205,6 @@ public class TokensService
             currentAddress = newWalletAddr.toLowerCase();
             stopUpdateCycle();
             addLockedTokens();
-            if (openseaService != null) openseaService.resetOffsetRead(networkFilter);
             tokenRepository.updateLocalAddress(newWalletAddr);
             lastStartCycleTime = 0;
         }
@@ -256,12 +253,11 @@ public class TokensService
 
         eventTimer = Single.fromCallable(() -> {
             startupPass();
-            checkIssueTokens();
             pendingTokenMap.clear();
             return true;
         }).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::updateCycle, this::onError);
+                .subscribe(this::updateCycle);
     }
 
     // Constructs a map of tokens requiring update
@@ -434,7 +430,7 @@ public class TokensService
 
     public void onWalletRefreshSwipe()
     {
-        openseaService.resetOffsetRead(networkFilter);
+
     }
 
     private boolean isFocusToken(Token t)
@@ -542,22 +538,6 @@ public class TokensService
         return tokenRepository.update(address, chainId, type);
     }
 
-    private void checkIssueTokens()
-    {
-        if (openseaService == null) return;
-        tokenRepository.fetchTokensThatMayNeedUpdating(currentAddress, networkFilter)
-                .map(tokens -> {
-                    for (Token t : tokens)
-                    {
-                        storeToken(t);
-                    }
-                    return tokens;
-                })
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe()
-                .isDisposed();
-    }
 
     private void checkTokensBalance()
     {
@@ -569,7 +549,7 @@ public class TokensService
             balanceCheckDisposable = tokenRepository.updateTokenBalance(currentAddress, t)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(newBalance -> onBalanceChange(newBalance, t), this::onError);
+                    .subscribe(newBalance -> onBalanceChange(newBalance, t));
         }
 
         checkPendingChains();
@@ -662,7 +642,6 @@ public class TokensService
             checkERC20(t.tokenInfo.chainId);
         }
 
-        checkOpenSea(t.tokenInfo.chainId);
     }
 
     private void checkChainVisibility(Token t)
@@ -690,61 +669,6 @@ public class TokensService
         }
     }
 
-    private void onError(Throwable throwable)
-    {
-        Timber.e(throwable);
-    }
-
-    private void checkOpenSea(long chainId)
-    {
-        if ((openSeaQueryDisposable != null && !openSeaQueryDisposable.isDisposed())
-            || openseaService == null || !EthereumNetworkBase.hasOpenseaAPI(chainId)
-            || !openseaService.canCheckChain(chainId)) return;
-
-        NetworkInfo info = ethereumNetworkRepository.getNetworkByChain(chainId);
-
-        if (info.chainId == transferCheckChain) return; //currently checking this chainId in TransactionsNetworkClient
-        
-        Timber.tag(TAG).d("Fetch from opensea : " + currentAddress + " : " + info.getShortName());
-
-        openSeaCheckId = info.chainId;
-
-        openSeaQueryDisposable = callOpenSeaAPI(info)
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
-                .subscribe(r -> {
-                    openSeaQueryDisposable = null;
-                    openSeaCheckId = 0;
-                }, this::openSeaCallError);
-    }
-
-    private void openSeaCallError(Throwable error)
-    {
-        Timber.w(error);
-        openSeaQueryDisposable = null;
-        openSeaCheckId = 0;
-    }
-
-    private Single<Boolean> callOpenSeaAPI(NetworkInfo info)
-    {
-        final Wallet wallet = new Wallet(currentAddress);
-
-        return Single.fromCallable(() -> {
-            openseaService.getTokens(currentAddress, info.chainId, info.getShortName(), this).toObservable()
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(Schedulers.io())
-                    .flatMap(Observable::fromArray)
-                    .blockingForEach(t -> tokenRepository.checkInterface(t, wallet)
-                            .map(token -> tokenRepository.initNFTAssets(wallet, token))
-                            .flatMap(token -> tokenRepository.storeTokens(wallet, new Token[]{token}))
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(Schedulers.io())
-                            .blockingGet()
-                    );
-
-            return true;
-        });
-    }
 
     public boolean openSeaUpdateInProgress(long chainId)
     {
@@ -1107,13 +1031,9 @@ public class TokensService
 
     public void updateAssets(Token token, List<BigInteger> additions, List<BigInteger> removals)
     {
-        tokenRepository.updateAssets(currentAddress, token, additions, removals);
+
     }
 
-    public void storeAsset(Token token, BigInteger tokenId, NFTAsset asset)
-    {
-        tokenRepository.storeAsset(currentAddress, token, tokenId, asset);
-    }
 
     public boolean isChainToken(long chainId, String tokenAddress)
     {

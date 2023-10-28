@@ -9,13 +9,11 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.alphawallet.app.R;
-import com.alphawallet.app.entity.nftassets.NFTAsset;
 import com.alphawallet.app.entity.tokens.Token;
 import com.alphawallet.app.repository.TokensRealmSource;
 import com.alphawallet.app.repository.entity.RealmTokenTicker;
 import com.alphawallet.app.service.TickerService;
 import com.alphawallet.app.service.TokensService;
-import com.alphawallet.app.ui.widget.adapter.NFTAssetCountAdapter;
 import com.alphawallet.app.util.BalanceUtils;
 import com.alphawallet.app.util.LocaleUtils;
 
@@ -57,16 +55,6 @@ public class AmountDisplayWidget extends LinearLayout {
     {
         NumberFormat decimalFormat = NumberFormat.getInstance(deviceSettingsLocale);
         setAmountFromString(decimalFormat.format(txAmount) + ' ' + token);
-    }
-
-    public void setAmountFromAssetList(List<NFTAsset> assets)
-    {
-        amount.setVisibility(View.GONE);
-        tokensList.setVisibility(View.VISIBLE);
-
-        //display assets
-        NFTAssetCountAdapter adapter = new NFTAssetCountAdapter(assets);
-        tokensList.setAdapter(adapter);
     }
 
     private String getValueString(BigInteger amount, Token token, TokensService tokensService)

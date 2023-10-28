@@ -9,7 +9,7 @@ import android.text.TextUtils;
 import com.alphawallet.app.R;
 import com.alphawallet.app.entity.ContractType;
 import com.alphawallet.app.entity.EasAttestation;
-import com.alphawallet.app.entity.nftassets.NFTAsset;
+
 import com.alphawallet.app.repository.EthereumNetworkBase;
 import com.alphawallet.app.repository.entity.RealmAttestation;
 import com.alphawallet.app.util.Utils;
@@ -485,33 +485,6 @@ public class Attestation extends Token
         return (easAttestation != null && easAttestation.getSignatureBytes().length == 65 && !TextUtils.isEmpty(easAttestation.version));
     }
 
-    @Override
-    public void addAssetElements(NFTAsset asset, Context ctx)
-    {
-        //add all the attestation members
-        for (Map.Entry<String, MemberData> m : additionalMembers.entrySet())
-        {
-            if (!m.getValue().isSchemaValue() || m.getKey().contains(SCRIPT_URI) || m.getValue().isBytes())
-            {
-                continue;
-            }
-
-            String key = m.getKey();
-            if (key.startsWith(SCHEMA_DATA_PREFIX))
-            {
-                key = key.substring(SCHEMA_DATA_PREFIX.length());
-            }
-
-            asset.addAttribute(key, m.getValue().getString());
-        }
-
-        //now add expiry, issuer key and valid from
-        MemberData validFrom = additionalMembers.get(VALID_FROM);
-        MemberData validTo = additionalMembers.get(VALID_TO);
-
-        addDateToAttributes(asset, validFrom, R.string.valid_from, ctx);
-        addDateToAttributes(asset, validTo, R.string.valid_until, ctx);
-    }
 
     @Override
     public String getAttrValue(String typeName)
@@ -528,13 +501,6 @@ public class Attestation extends Token
         }
     }
 
-    private void addDateToAttributes(NFTAsset asset, MemberData validFrom, int resource, Context ctx)
-    {
-        if (validFrom != null && validFrom.getValue().compareTo(BigInteger.ZERO) > 0)
-        {
-            asset.addAttribute(ctx.getString(resource), validFrom.getString());
-        }
-    }
 
     private void patchLegacyAttestation(RealmAttestation rAtt)
     {
@@ -640,21 +606,6 @@ public class Attestation extends Token
         }
     }
 
-    public String getAttestationName(TokenDefinition td)
-    {
-        NFTAsset nftAsset = new NFTAsset();
-        nftAsset.setupScriptElements(td);
-        String name = nftAsset.getName();
-        if (!TextUtils.isEmpty(name))
-        {
-            return name;
-        }
-        else
-        {
-            return tokenInfo.name;
-        }
-    }
-
     public boolean knownIssuerKey()
     {
         return getKnownRootIssuers(tokenInfo.chainId).contains(issuerKey);
@@ -681,6 +632,10 @@ public class Attestation extends Token
     public String getStoredCollectionId()
     {
         return collectionId;
+    }
+
+    public int getAttestationName(TokenDefinition td) {
+        return -19;
     }
 
     private static class MemberData

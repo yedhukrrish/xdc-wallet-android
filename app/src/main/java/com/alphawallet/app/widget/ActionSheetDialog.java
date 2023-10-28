@@ -26,7 +26,7 @@ import com.alphawallet.app.entity.TXSpeed;
 import com.alphawallet.app.entity.Transaction;
 import com.alphawallet.app.entity.WalletType;
 import com.alphawallet.app.entity.analytics.ActionSheetMode;
-import com.alphawallet.app.entity.nftassets.NFTAsset;
+
 import com.alphawallet.app.entity.tokens.Token;
 import com.alphawallet.app.repository.EthereumNetworkBase;
 import com.alphawallet.app.repository.SharedPreferenceRepository;
@@ -162,18 +162,10 @@ public class ActionSheetDialog extends ActionSheet implements StandardFunctionIn
         {
             balanceDisplay.setVisibility(View.GONE);
 
-            if (token.getInterfaceSpec() == ContractType.ERC1155)
-            {
-                List<NFTAsset> assetList = token.getAssetListFromTransaction(transaction);
-                amountDisplay.setVisibility(View.VISIBLE);
-                amountDisplay.setAmountFromAssetList(assetList);
-            }
-            else
-            {
+
                 amountDisplay.setVisibility(View.GONE);
-                assetDetailView.setupAssetDetail(token, getERC721TokenId(), this);
+
                 assetDetailView.setVisibility(View.VISIBLE);
-            }
         }
 
         setupTransactionDetails();

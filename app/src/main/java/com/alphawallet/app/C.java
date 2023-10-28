@@ -21,39 +21,9 @@ public abstract class C {
     public static final int ADDED_TOKEN_RETURN = 9;
     public static final int STANDARD_POPUP_INACTIVITY_DISMISS = 15*1000; //Standard dismiss after 15 seconds
 
-    public static final String ETHEREUM_NETWORK_NAME = "Ethereum";
-    public static final String CLASSIC_NETWORK_NAME = "Ethereum Classic";
-    public static final String XDAI_NETWORK_NAME = "Gnosis";
-    public static final String GOERLI_NETWORK_NAME = "Görli (Test)";
-    public static final String BINANCE_TEST_NETWORK = "BSC TestNet";
-    public static final String BINANCE_MAIN_NETWORK = "Binance (BSC)";
-    public static final String HECO_MAIN_NETWORK = "Heco";
-    public static final String FANTOM_NETWORK = "Fantom Opera";
-    public static final String FANTOM_TEST_NETWORK = "Fantom (Test)";
-    public static final String AVALANCHE_NETWORK = "Avalanche";
-    public static final String FUJI_TEST_NETWORK = "Avalanche FUJI (Test)";
-    public static final String POLYGON_NETWORK = "Polygon";
-    public static final String POLYGON_TEST_NETWORK = "Mumbai (Test)";
-    public static final String OPTIMISTIC_NETWORK = "Optimistic";
-    public static final String CRONOS_MAIN_NETWORK = "Cronos";
-    public static final String CRONOS_TEST_NETWORK = "Cronos (Test)";
-    public static final String ARBITRUM_ONE_NETWORK = "Arbitrum One";
-    public static final String PALM_NAME = "PALM";
-    public static final String PALM_TEST_NAME = "PALM (Test)";
-    public static final String KLAYTN_NAME = "Klaytn Cypress";
-    public static final String KLAYTN_BAOBAB_NAME = "Klaytn Baobab (Test)";
-    public static final String IOTEX_NAME = "IoTeX";
-    public static final String IOTEX_TESTNET_NAME = "IoTeX (Test)";
-    public static final String AURORA_MAINNET_NAME = "Aurora";
-    public static final String AURORA_TESTNET_NAME = "Aurora (Test)";
-    public static final String MILKOMEDA_NAME = "Milkomeda Cardano";
-    public static final String MILKOMEDA_TESTNET_NAME = "Milkomeda Cardano (Test)";
-    public static final String SEPOLIA_TESTNET_NAME = "Sepolia (Test)";
-    public static final String OPTIMISM_GOERLI_TESTNET_NAME = "Optimism Goerli (Test)";
-    public static final String ARBITRUM_GOERLI_TESTNET_NAME = "Arbitrum Goerli (Test)";
-    public static final String OKX_NETWORK_NAME = "OKXChain Mainnet";
-    public static final String ROOTSTOCK_NETWORK_NAME = "Rootstock";
-    public static final String ROOTSTOCK_TESTNET_NAME = "Rootstock (Test)";
+    public static final String ETHEREUM_NETWORK_NAME = "TXDC Network";
+    public static final String CLASSIC_NETWORK_NAME = "XDC Network";
+
     public static final String LINEA_NAME = "Linea";
     public static final String LINEA_TESTNET_NAME = LINEA_NAME + " (Test)";
     public static final String HOLESKY_TESTNET_NAME = "Holesky (Test)";
@@ -66,30 +36,9 @@ public abstract class C {
     public static final String ETHEREUM_TICKER = "ethereum";
 
     public static final String USD_SYMBOL = "$";
-    public static final String ETH_SYMBOL = "ETH";
-    public static final String xDAI_SYMBOL = "xDai";
-    public static final String ETC_SYMBOL = "ETC";
-    public static final String GOERLI_SYMBOL = "GÖETH";
-    public static final String BINANCE_SYMBOL = "BNB";
-    public static final String HECO_SYMBOL = "HT";
-    public static final String FANTOM_SYMBOL = "FTM";
-    public static final String AVALANCHE_SYMBOL = "AVAX";
-    public static final String POLYGON_SYMBOL = "MATIC";
-    public static final String CRONOS_SYMBOL = "CRO";
-    public static final String CRONOS_TEST_SYMBOL = "tCRO";
-    public static final String ARBITRUM_SYMBOL = "AETH";
-    public static final String PALM_SYMBOL = "PALM";
-    public static final String KLAYTN_SYMBOL = "KLAY";
-    public static final String IOTEX_SYMBOL = "IOTX";
-    public static final String MILKOMEDA_SYMBOL = "milkADA";
-    public static final String MILKOMEDA_TEST_SYMBOL = "milktADA";
-    public static final String SEPOLIA_SYMBOL = "ETH";
-    public static final String OPTIMISM_GOERLI_TEST_SYMBOL = "ETH";
-    public static final String ARBITRUM_GOERLI_TEST_SYMBOL = "AGOR";
-    public static final String OKX_SYMBOL = "OKT";
-    public static final String ROOTSTOCK_SYMBOL = "RBTC";
-    public static final String ROOTSTOCK_TEST_SYMBOL = "tBTC";
-    public static final String HOLESKY_TEST_SYMBOL = "Hol" + ETH_SYMBOL;
+    public static final String ETH_SYMBOL = "TXDC";
+    public static final String ETC_SYMBOL = "XDC";
+
 
     public static final String BURN_ADDRESS = "0x0000000000000000000000000000000000000000";
 

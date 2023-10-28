@@ -2,7 +2,7 @@ package com.alphawallet.app.ui;
 
 import static com.alphawallet.app.C.IMPORT_STRING;
 import static com.alphawallet.app.entity.Operation.SIGN_DATA;
-import static com.alphawallet.ethereum.EthereumNetworkBase.GNOSIS_ID;
+
 import static com.alphawallet.token.tools.Convert.getEthString;
 import static com.alphawallet.token.tools.ParseMagicLink.currencyLink;
 import static com.alphawallet.token.tools.ParseMagicLink.spawnable;
@@ -142,21 +142,21 @@ public class ImportTokenActivity extends BaseActivity implements View.OnClickLis
             viewModel.switchNetwork(data.chainId);
             viewModel.loadToken();
         }
-        else
-        {
-            //Legacy support
-            switch (data.contractType)
-            {
-                case currencyLink:
-                    //for currency drop link, check xDai first, then other networks
-                    viewModel.switchNetwork(GNOSIS_ID);
-                    viewModel.checkTokenNetwork(contractAddress, "requiredPrefix");
-                    break;
-                default:
-                    viewModel.checkTokenNetwork(contractAddress, "name");
-                    break;
-            }
-        }
+//        else
+//        {
+//            //Legacy support
+//            switch (data.contractType)
+//            {
+//                case currencyLink:
+//                    //for currency drop link, check xDai first, then other networks
+//                    viewModel.switchNetwork(GNOSIS_ID);
+//                    viewModel.checkTokenNetwork(contractAddress, "requiredPrefix");
+//                    break;
+//                default:
+//                    viewModel.checkTokenNetwork(contractAddress, "name");
+//                    break;
+//            }
+//        }
     }
 
     private void onNetwork(NetworkInfo networkInfo)

@@ -27,18 +27,16 @@ import com.alphawallet.app.entity.StandardFunctionInterface;
 import com.alphawallet.app.entity.TransactionReturn;
 import com.alphawallet.app.entity.Wallet;
 import com.alphawallet.app.entity.WalletType;
-import com.alphawallet.app.entity.nftassets.NFTAsset;
+
 import com.alphawallet.app.entity.tokens.Token;
 import com.alphawallet.app.service.GasService;
 import com.alphawallet.app.ui.widget.entity.ActionSheetCallback;
-import com.alphawallet.app.ui.widget.entity.NFTAttributeLayout;
 import com.alphawallet.app.util.KittyUtils;
 import com.alphawallet.app.viewmodel.TokenFunctionViewModel;
 import com.alphawallet.app.web3.entity.Web3Transaction;
 import com.alphawallet.app.widget.AWalletAlertDialog;
 import com.alphawallet.app.widget.ActionSheetDialog;
 import com.alphawallet.app.widget.FunctionButtonBar;
-import com.alphawallet.app.widget.NFTImageView;
 import com.alphawallet.ethereum.EthereumNetworkBase;
 import com.alphawallet.hardware.SignatureFromKey;
 import com.alphawallet.token.entity.TSAction;
@@ -55,30 +53,26 @@ public class TokenDetailActivity extends BaseActivity implements StandardFunctio
 {
     private TokenFunctionViewModel viewModel;
 
-    private NFTImageView assetImage;
     private TextView name;
     private TextView desc;
     private TextView id;
     private TextView generation;
     private TextView cooldown;
     private TextView openExternal;
-    private NFTAttributeLayout attributeLayout;
     private FunctionButtonBar functionBar;
     private ActionSheetDialog confirmationDialog;
     private AWalletAlertDialog dialog;
     private Token token;
-    private NFTAsset asset;
+
     private BigInteger tokenId;
 
     private void initViews() {
-        assetImage = findViewById(R.id.layout_image);
         name = findViewById(R.id.name);
         desc = findViewById(R.id.description);
         id = findViewById(R.id.id);
         generation = findViewById(R.id.generation);
         cooldown = findViewById(R.id.cooldown);
         openExternal = findViewById(R.id.open_external);
-        attributeLayout = findViewById(R.id.attributes);
         functionBar = findViewById(R.id.layoutButtons);
         if (functionBar != null)
         {
@@ -101,7 +95,6 @@ public class TokenDetailActivity extends BaseActivity implements StandardFunctio
         viewModel.transactionError().observe(this, this::txError);
 
         if (getIntent() != null && getIntent().getExtras() != null) {
-            asset = getIntent().getExtras().getParcelable(C.EXTRA_NFTASSET);
             String address = getIntent().getStringExtra(C.EXTRA_ADDRESS);
             long chainId = getIntent().getLongExtra(C.EXTRA_CHAIN_ID, EthereumNetworkBase.MAINNET_ID);
             token = viewModel.getToken(chainId, address);
@@ -117,11 +110,7 @@ public class TokenDetailActivity extends BaseActivity implements StandardFunctio
     }
 
     private void setupPage() {
-        assetImage.setupTokenImage(asset);
-        setDetails(asset);
-        setNameAndDesc(asset);
-        setExternalLink(asset);
-        attributeLayout.bind(token, asset);
+
     }
 
     @Override
@@ -146,29 +135,7 @@ public class TokenDetailActivity extends BaseActivity implements StandardFunctio
             //get gas estimate
             viewModel.estimateGasLimit(w3Tx, token.tokenInfo.chainId);
         }
-        else
-        {
-            viewModel.showFunction(this, token, function, selection, null);
-        }
-    }
 
-    private void setExternalLink(NFTAsset asset) {
-        if (asset.getExternalLink() != null && !asset.getExternalLink().equals("null")) {
-            openExternal.setText(getString(R.string.open_on_external_link,
-                    token.getFullName()));
-
-            openExternal.setOnClickListener(v -> {
-                Intent launchBrowser = new Intent(Intent.ACTION_VIEW, Uri.parse(asset.getExternalLink()));
-                startActivity(launchBrowser);
-            });
-        } else {
-            openExternal.setVisibility(View.GONE);
-        }
-    }
-
-    private void setNameAndDesc(NFTAsset asset) {
-        name.setText(asset.getName());
-        desc.setText(asset.getDescription());
     }
 
     private void calculateEstimateDialog()
@@ -180,30 +147,6 @@ public class TokenDetailActivity extends BaseActivity implements StandardFunctio
         dialog.setProgressMode();
         dialog.setCancelable(false);
         dialog.show();
-    }
-
-    private void setDetails(NFTAsset asset) {
-        id.setText(tokenId.toString());
-        if (asset.getAttributeValue("generation") != null) {
-            generation.setText(String.format("Gen %s",
-                    asset.getAttributeValue("generation")));
-        } else if (asset.getAttributeValue("gen") != null) {
-            generation.setText(String.format("Gen %s",
-                    asset.getAttributeValue("gen")));
-        } else {
-            generation.setVisibility(View.GONE);
-        }
-
-        if (asset.getAttributeValue("cooldown_index") != null) {
-            cooldown.setText(String.format("%s Cooldown",
-                    KittyUtils.parseCooldownIndex(
-                            asset.getAttributeValue("cooldown_index"))));
-        } else if (asset.getAttributeValue("cooldown") != null) { // Non-CK
-            cooldown.setText(String.format("%s Cooldown",
-                    asset.getAttributeValue("cooldown")));
-        } else {
-            cooldown.setVisibility(View.GONE);
-        }
     }
 
     @Override

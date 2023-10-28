@@ -226,18 +226,6 @@ public class TokenFunctionActivity extends BaseActivity implements StandardFunct
     }
 
     @Override
-    public void selectRedeemTokens(List<BigInteger> selection)
-    {
-        viewModel.selectRedeemToken(this, token, selection);
-    }
-
-    @Override
-    public void sellTicketRouter(List<BigInteger> selection)
-    {
-        viewModel.openUniversalLink(this, token, selection);
-    }
-
-    @Override
     public void showTransferToken(List<BigInteger> selection)
     {
         viewModel.showTransferToken(this, token, selection);
@@ -294,10 +282,7 @@ public class TokenFunctionActivity extends BaseActivity implements StandardFunct
                 checkConfirm(web3Tx);
             }
         }
-        else
-        {
-            viewModel.showFunction(this, token, function, idList, null);
-        }
+
     }
 
     /**

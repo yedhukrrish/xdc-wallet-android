@@ -30,7 +30,7 @@ import com.alphawallet.app.entity.Wallet;
 import com.alphawallet.app.entity.WalletType;
 import com.alphawallet.app.entity.analytics.QrScanSource;
 import com.alphawallet.app.entity.attestation.ImportAttestation;
-import com.alphawallet.app.entity.nftassets.NFTAsset;
+
 import com.alphawallet.app.entity.tokendata.TokenGroup;
 import com.alphawallet.app.entity.tokens.Attestation;
 import com.alphawallet.app.entity.tokens.Token;
@@ -393,23 +393,6 @@ public class WalletViewModel extends BaseViewModel
                 tokenDetailRouter.open(activity, token.getAddress(), token.tokenInfo.symbol, token.tokenInfo.decimals,
                         !token.isEthereum(), defaultWallet.getValue(), token, hasDefinition);
                 break;
-
-            case ERC1155:
-                tokenDetailRouter.open(activity, token, defaultWallet.getValue(), hasDefinition);
-                break;
-
-            case ATTESTATION:
-                tokenDetailRouter.openAttestation(activity, token, defaultWallet.getValue(), new NFTAsset((Attestation)token));
-                break;
-
-            case ERC721:
-            case ERC721_LEGACY:
-            case ERC721_TICKET:
-            case ERC721_UNDETERMINED:
-            case ERC721_ENUMERABLE:
-                tokenDetailRouter.open(activity, token, defaultWallet.getValue(), false);
-                break;
-
             case ERC875_LEGACY:
             case ERC875:
                 tokenDetailRouter.openLegacyToken(activity, token, defaultWallet.getValue());

@@ -16,8 +16,8 @@ import com.alphawallet.app.entity.TicketRangeElement;
 import com.alphawallet.app.entity.Transaction;
 import com.alphawallet.app.entity.TransactionInput;
 import com.alphawallet.app.entity.TransactionType;
-import com.alphawallet.app.entity.nftassets.NFTAsset;
-import com.alphawallet.app.entity.opensea.AssetContract;
+
+
 import com.alphawallet.app.entity.tokendata.TokenGroup;
 import com.alphawallet.app.repository.EthereumNetworkRepository;
 import com.alphawallet.app.repository.EventResult;
@@ -136,12 +136,6 @@ public class Token
         else return "0";
     }
 
-    public NFTAsset getAssetForToken(String tokenId) {
-        return null;
-    }
-    public NFTAsset getAssetForToken(BigInteger tokenId) {
-        return null;
-    }
     public List<BigInteger> getUniqueTokenIds()
     {
         List<BigInteger> uniqueIds = new ArrayList<>();
@@ -160,9 +154,6 @@ public class Token
         return uniqueIds;
     }
 
-    public void addAssetToTokenBalanceAssets(BigInteger tokenId, NFTAsset asset) {
-        //only for ERC721, see override in ERC721Token
-    }
 
     public void setRealmBalance(RealmToken realmToken)
     {
@@ -352,12 +343,6 @@ public class Token
         }
     }
 
-    public Map<BigInteger, NFTAsset> getTokenAssets() {
-        return null;
-    }
-
-    public Map<BigInteger, NFTAsset> getCollectionMap() { return null; }
-
     public List<BigInteger> ticketIdStringToIndexList(String userList)
     {
         return null;
@@ -456,10 +441,6 @@ public class Token
     public Function getTransferFunction(String to, List<BigInteger> transferData) throws NumberFormatException
     {
         return null;
-    }
-    public byte[] getTransferBytes(String to, ArrayList<Pair<BigInteger, NFTAsset>> transferData)
-    {
-        return Numeric.hexStringToByteArray("0x");
     }
 
     public Function getSpawnPassToFunction(BigInteger expiry, List<BigInteger> tokenIds, int v, byte[] r, byte[] s, String recipient)
@@ -1004,38 +985,14 @@ public class Token
                 || (!TextUtils.isEmpty(tokenInfo.symbol) && tokenInfo.symbol.contains("?"));
     }
 
-    public void setAssetContract(AssetContract contract) {  }
-    public AssetContract getAssetContract() { return null; }
-
     public List<Integer> getStandardFunctions()
     {
         return Arrays.asList(R.string.action_send, R.string.action_receive);
     }
 
-    public List<NFTAsset> getAssetListFromTransaction(Transaction tx)
-    {
-        return new ArrayList<>();
-    }
-
-    public Map<BigInteger, NFTAsset> queryAssets(Map<BigInteger, NFTAsset> assetMap)
-    {
-        return assetMap;
-    }
-
-    public Map<BigInteger, NFTAsset> getAssetChange(Map<BigInteger, NFTAsset> oldAssetList)
-    {
-        return oldAssetList;
-    }
-
     /**
      * Token Metadata handling
      */
-
-    public NFTAsset fetchTokenMetadata(BigInteger tokenId)
-    {
-        return contractInteract.fetchTokenMetadata(tokenId);
-    }
-
     public boolean checkInfoRequiresUpdate(RealmToken realmToken)
     {
         if (TextUtils.isEmpty(realmToken.getName()) || (!TextUtils.isEmpty(tokenInfo.name) && !tokenInfo.name.equals(realmToken.getName()))) { return true; }
@@ -1047,35 +1004,6 @@ public class Token
     public boolean isBatchTransferAvailable()
     {
         return false;
-    }
-
-    public Single<List<NFTAsset>> buildAssetList(TokenTransferData transferData)
-    {
-        return Single.fromCallable(() -> {
-            List<NFTAsset> assets = new ArrayList<>();
-            if (transferData == null || !isNonFungible()) return assets;
-            Map<String, EventResult> result = transferData.getEventResultMap();
-            EventResult amounts = result.get("amount");
-            EventResult counts = result.get("value");
-            if (amounts == null) return assets;
-
-            for (int i = 0; i < amounts.values.length; i++)
-            {
-                String tokenId = amounts.values[i];
-                String count = (counts == null || counts.values.length < i) ? "1" : counts.values[i];
-
-                NFTAsset asset = getAssetForToken(tokenId);
-                if (asset == null) asset = fetchTokenMetadata(new BigInteger(tokenId));
-
-                if (asset != null)
-                {
-                    asset.setSelectedBalance(new BigDecimal(count));
-                    assets.add(asset);
-                }
-            }
-
-            return assets;
-        });
     }
 
     public Single<List<String>> getScriptURI()
@@ -1101,10 +1029,6 @@ public class Token
         return null;
     }
 
-    public void addAssetElements(NFTAsset asset, Context ctx)
-    {
-
-    }
 
     public String getTSKey()
     {

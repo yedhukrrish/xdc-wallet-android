@@ -12,7 +12,7 @@ import androidx.annotation.Nullable;
 
 import com.alphawallet.app.R;
 import com.alphawallet.app.entity.ActionSheetInterface;
-import com.alphawallet.app.entity.nftassets.NFTAsset;
+
 import com.alphawallet.app.entity.tokens.Token;
 import com.alphawallet.app.util.Utils;
 
@@ -35,7 +35,6 @@ public class AssetDetailView extends LinearLayout
     private final ImageView assetDetails;
     private final LinearLayout layoutHolder;
     private final ProgressBar loadingSpinner;
-    private final NFTImageView imageView;
 
     @Nullable
     private Disposable disposable;
@@ -49,64 +48,10 @@ public class AssetDetailView extends LinearLayout
         assetDetails = findViewById(R.id.image_more);
         layoutDetails = findViewById(R.id.layout_details);
         layoutHolder = findViewById(R.id.layout_holder);
-        imageView = findViewById(R.id.asset_image);
         loadingSpinner = findViewById(R.id.loading_spinner);
     }
 
-    public void setupAssetDetail(Token token, String tokenId, final ActionSheetInterface actionSheetInterface)
-    {
-        NFTAsset asset = token.getAssetForToken(tokenId);
-        if (asset == null)
-        {
-            loadingSpinner.setVisibility(View.VISIBLE);
-            disposable = fetchAsset(token, tokenId)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(fetchedAsset -> setupAssetDetail(fetchedAsset, actionSheetInterface), error -> {  });
-        }
-        else
-        {
-            setupAssetDetail(asset, actionSheetInterface);
-        }
-    }
 
-    private void setupAssetDetail(NFTAsset asset, ActionSheetInterface actionSheetInterface) throws IllegalArgumentException
-    {
-        if (!Utils.stillAvailable(getContext())) return;
-        loadingSpinner.setVisibility(View.GONE);
-
-        layoutHolder.setVisibility(View.VISIBLE);
-        assetName.setText(asset.getName());
-
-        assetDescription.setText(asset.getDescription());
-
-        if (assetDetails.getVisibility() != View.GONE)
-        {
-            layoutHolder.setOnClickListener(v -> {
-                if (layoutDetails.getVisibility() == View.GONE)
-                {
-                    layoutDetails.setVisibility(View.VISIBLE);
-                    assetDetails.setImageResource(R.drawable.ic_expand_less_black);
-                    imageView.setupTokenImage(asset);
-                    imageView.setVisibility(View.VISIBLE);
-                    if (actionSheetInterface != null) actionSheetInterface.fullExpand();
-                }
-                else
-                {
-                    layoutDetails.setVisibility(View.GONE);
-                    assetDetails.setImageResource(R.drawable.ic_expand_more);
-                    imageView.setVisibility(View.GONE);
-                }
-            });
-        }
-    }
-
-    private Single<NFTAsset> fetchAsset(Token token, String tokenId)
-    {
-        return Single.fromCallable(() -> {
-            return token.fetchTokenMetadata(new BigInteger(tokenId)); //fetch directly from token
-        });
-    }
 
     public void setFullyExpanded()
     {

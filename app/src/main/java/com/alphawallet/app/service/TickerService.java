@@ -1,25 +1,12 @@
 package com.alphawallet.app.service;
 
 import static com.alphawallet.app.entity.tokenscript.TokenscriptFunction.ZERO_ADDRESS;
-import static com.alphawallet.ethereum.EthereumNetworkBase.ARBITRUM_MAIN_ID;
-import static com.alphawallet.ethereum.EthereumNetworkBase.AURORA_MAINNET_ID;
-import static com.alphawallet.ethereum.EthereumNetworkBase.AVALANCHE_ID;
-import static com.alphawallet.ethereum.EthereumNetworkBase.BINANCE_MAIN_ID;
+
 import static com.alphawallet.ethereum.EthereumNetworkBase.CLASSIC_ID;
-import static com.alphawallet.ethereum.EthereumNetworkBase.CRONOS_MAIN_ID;
-import static com.alphawallet.ethereum.EthereumNetworkBase.FANTOM_ID;
-import static com.alphawallet.ethereum.EthereumNetworkBase.GNOSIS_ID;
-import static com.alphawallet.ethereum.EthereumNetworkBase.HECO_ID;
-import static com.alphawallet.ethereum.EthereumNetworkBase.IOTEX_MAINNET_ID;
-import static com.alphawallet.ethereum.EthereumNetworkBase.KLAYTN_ID;
-import static com.alphawallet.ethereum.EthereumNetworkBase.LINEA_ID;
+
+
 import static com.alphawallet.ethereum.EthereumNetworkBase.MAINNET_ID;
-import static com.alphawallet.ethereum.EthereumNetworkBase.MILKOMEDA_C1_ID;
-import static com.alphawallet.ethereum.EthereumNetworkBase.OKX_ID;
-import static com.alphawallet.ethereum.EthereumNetworkBase.OPTIMISTIC_MAIN_ID;
-import static com.alphawallet.ethereum.EthereumNetworkBase.POLYGON_ID;
-import static com.alphawallet.ethereum.EthereumNetworkBase.POLYGON_TEST_ID;
-import static com.alphawallet.ethereum.EthereumNetworkBase.ROOTSTOCK_MAINNET_ID;
+
 import static org.web3j.protocol.core.methods.request.Transaction.createEthCallTransaction;
 
 import android.text.TextUtils;
@@ -29,7 +16,7 @@ import androidx.annotation.Nullable;
 
 import com.alphawallet.app.entity.CoinGeckoTicker;
 import com.alphawallet.app.entity.DexGuruTicker;
-import com.alphawallet.app.entity.nftassets.NFTAsset;
+
 import com.alphawallet.app.entity.tokendata.TokenTicker;
 import com.alphawallet.app.entity.tokens.Token;
 import com.alphawallet.app.entity.tokens.TokenCardMeta;
@@ -239,30 +226,6 @@ public class TickerService
         currentConversionRate = conversionRate;
         return Single.fromCallable(() -> {
             int tickerSize = 0;
-            final Web3j web3j = TokenRepository.getWeb3jService(POLYGON_TEST_ID);
-            //fetch current tickers
-            Function function = getTickers();
-            String responseValue = callSmartContractFunction(web3j, function, MARKET_ORACLE_CONTRACT);
-            List<Type> responseValues = FunctionReturnDecoder.decode(responseValue, function.getOutputParameters());
-
-            if (!responseValues.isEmpty())
-            {
-                Type T = responseValues.get(0);
-                List<Uint256> values = (List) T.getValue();
-                long tickerUpdateTime = values.get(0).getValue().longValue() * 1000L;
-
-                if ((System.currentTimeMillis() - tickerUpdateTime) < TICKER_STALE_TIMEOUT)
-                {
-                    for (int i = 1; i < values.size(); i++)
-                    {
-                        //decode ticker values and populate
-                        BigInteger tickerInfo = values.get(i).getValue();
-                        addToTokenTickers(tickerInfo, tickerUpdateTime);
-                        tickerSize++;
-                    }
-                }
-            }
-
             return tickerSize;
         });
     }
@@ -701,34 +664,17 @@ public class TickerService
     public static final Map<Long, String> coinGeckoChainIdToAPIName = new HashMap<>()
     {{
         put(MAINNET_ID, "ethereum");
-        put(GNOSIS_ID, "xdai");
-        put(BINANCE_MAIN_ID, "binance-smart-chain");
-        put(POLYGON_ID, "polygon-pos");
         put(CLASSIC_ID, "ethereum-classic");
-        put(FANTOM_ID, "fantom");
-        put(AVALANCHE_ID, "avalanche");
-        put(HECO_ID, "huobi-token");
-        put(ARBITRUM_MAIN_ID, "arbitrum-one");
-        put(OKX_ID, "okex-chain");
         put(1666600000L, "harmony-shard-0");
         put(321L, "kucoin-community-chain");
         put(88L, "tomochain");
         put(42220L, "celo");
-        put(KLAYTN_ID, "klay-token");
-        put(IOTEX_MAINNET_ID, "iotex");
-        put(AURORA_MAINNET_ID, "aurora");
-        put(MILKOMEDA_C1_ID, "cardano");
-        put(CRONOS_MAIN_ID, "cronos");
-        put(ROOTSTOCK_MAINNET_ID, "rootstock");
-        put(LINEA_ID, "linea");
     }};
 
     private static final Map<Long, String> dexGuruChainIdToAPISymbol = new HashMap<Long, String>()
     {{
         put(MAINNET_ID, "eth");
-        put(BINANCE_MAIN_ID, "bsc");
-        put(POLYGON_ID, "polygon");
-        put(AVALANCHE_ID, "avalanche");
+
     }};
 
     public void deleteTickers()
@@ -742,22 +688,7 @@ public class TickerService
     {{
         put(MAINNET_ID, "ethereum");
         put(CLASSIC_ID, "ethereum-classic");
-        put(GNOSIS_ID, "xdai");
-        put(BINANCE_MAIN_ID, "binancecoin");
-        put(HECO_ID, "huobi-token");
-        put(AVALANCHE_ID, "avalanche-2");
-        put(FANTOM_ID, "fantom");
-        put(POLYGON_ID, "matic-network");
-        put(ARBITRUM_MAIN_ID, "ethereum");
-        put(OPTIMISTIC_MAIN_ID, "ethereum");
-        put(KLAYTN_ID, "klay-token");
-        put(IOTEX_MAINNET_ID, "iotex");
-        put(AURORA_MAINNET_ID, "aurora");
-        put(MILKOMEDA_C1_ID, "cardano");
-        put(CRONOS_MAIN_ID, "crypto-com-chain");
-        put(OKX_ID, "okb");
-        put(ROOTSTOCK_MAINNET_ID, "rootstock");
-        put(LINEA_ID, "ethereum");
+
     }};
 
     public static boolean validateCoinGeckoAPI(Token token)

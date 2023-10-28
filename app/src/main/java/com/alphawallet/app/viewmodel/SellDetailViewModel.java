@@ -17,12 +17,9 @@ import com.alphawallet.app.entity.tokens.Token;
 import com.alphawallet.app.interact.CreateTransactionInteract;
 import com.alphawallet.app.interact.FindDefaultNetworkInteract;
 import com.alphawallet.app.repository.EthereumNetworkRepository;
-import com.alphawallet.app.router.SellDetailRouter;
 import com.alphawallet.app.service.AssetDefinitionService;
 import com.alphawallet.app.service.KeyService;
 import com.alphawallet.app.service.TokensService;
-import com.alphawallet.app.ui.SellDetailActivity;
-import com.alphawallet.app.util.Utils;
 import com.alphawallet.token.entity.SalesOrderMalformed;
 import com.alphawallet.token.entity.SignableBytes;
 import com.alphawallet.token.tools.ParseMagicLink;
@@ -49,7 +46,7 @@ public class SellDetailViewModel extends BaseViewModel {
     private final FindDefaultNetworkInteract findDefaultNetworkInteract;
     private final TokensService tokensService;
     private final CreateTransactionInteract createTransactionInteract;
-    private final SellDetailRouter sellDetailRouter;
+
     private final KeyService keyService;
     private final AssetDefinitionService assetDefinitionService;
 
@@ -59,13 +56,11 @@ public class SellDetailViewModel extends BaseViewModel {
     SellDetailViewModel(FindDefaultNetworkInteract findDefaultNetworkInteract,
                         TokensService tokensService,
                         CreateTransactionInteract createTransactionInteract,
-                        SellDetailRouter sellDetailRouter,
                         KeyService keyService,
                         AssetDefinitionService assetDefinitionService) {
         this.findDefaultNetworkInteract = findDefaultNetworkInteract;
         this.tokensService = tokensService;
         this.createTransactionInteract = createTransactionInteract;
-        this.sellDetailRouter = sellDetailRouter;
         this.keyService = keyService;
         this.assetDefinitionService = assetDefinitionService;
     }
@@ -136,7 +131,7 @@ public class SellDetailViewModel extends BaseViewModel {
 
     public void openUniversalLinkSetExpiry(Context context, List<BigInteger> selection, double price)
     {
-        sellDetailRouter.openUniversalLink(context, token, Utils.bigIntListToString(selection, false), defaultWallet.getValue(), SellDetailActivity.SET_EXPIRY, price);
+//        sellDetailRouter.openUniversalLink(context, token, Utils.bigIntListToString(selection, false), defaultWallet.getValue(), SellDetailActivity.SET_EXPIRY, price);
     }
 
     private void gotSignature(SignatureFromKey signature)

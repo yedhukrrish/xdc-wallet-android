@@ -99,7 +99,7 @@ public class EventDetailWidget extends LinearLayout
 
         transaction.getDestination(token); //build decoded input
         Map<String, EventResult> resultMap = transferData.getEventResultMap();
-        setupERC721TokenView(token, resultMap.get("amount").value, false);
+
         String value = "";
         if (resultMap.get("amount") != null)
         {
@@ -123,28 +123,6 @@ public class EventDetailWidget extends LinearLayout
         }
     }
 
-    public void setupERC721TokenView(Token token, String tokenId, boolean minimise)
-    {
-        if (token.isERC721())
-        {
-            tokenView.setupAssetDetail(token, tokenId, null);
-            tokenView.setVisibility(View.VISIBLE);
-            tokenView.setFullyExpanded();
-        }
-        else
-        {
-            tokenView.setVisibility(View.GONE);
-        }
-
-        if (minimise)
-        {
-            findViewById(R.id.detail_layer).setVisibility(View.GONE);
-            holdingView.setVisibility(View.VISIBLE);
-            icon.setVisibility(View.GONE);
-            title.setVisibility(View.GONE);
-            symbol.setVisibility(View.GONE);
-        }
-    }
 
     public void onDestroy()
     {

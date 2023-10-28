@@ -11,8 +11,8 @@ import com.alphawallet.app.entity.ContractType;
 import com.alphawallet.app.entity.CustomViewSettings;
 import com.alphawallet.app.entity.NetworkInfo;
 import com.alphawallet.app.entity.Wallet;
-import com.alphawallet.app.entity.nftassets.NFTAsset;
-import com.alphawallet.app.entity.opensea.AssetContract;
+
+
 import com.alphawallet.app.entity.tokendata.TokenGroup;
 import com.alphawallet.app.entity.tokendata.TokenTicker;
 import com.alphawallet.app.entity.tokens.Attestation;
@@ -433,34 +433,8 @@ public class TokensRealmSource implements TokenLocalSource
         return isEnabled;
     }
 
-    @Override
-    public void storeAsset(String wallet, Token token, BigInteger tokenId, NFTAsset asset)
-    {
-        try (Realm realm = realmManager.getRealmInstance(wallet))
-        {
-            realm.executeTransactionAsync(r -> {
-                writeAsset(r, token, tokenId, asset);
-            });
-        }
-    }
 
-    @Override
-    public void updateNFTAssets(String wallet, Token token, List<BigInteger> additions, List<BigInteger> removals)
-    {
-        try (Realm realm = realmManager.getRealmInstance(wallet))
-        {
-            realm.executeTransaction(r -> {
-                RealmToken realmToken = createTokenIfRequired(r, token);
-                deleteAssets(r, token, removals);
-                populateNFTAssets(r, realmToken, token, additions);
-                setTokenUpdateTime(realmToken, token);
-            });
-        }
-        catch (Exception e)
-        {
-            Timber.e(e);
-        }
-    }
+
 
     private RealmToken createTokenIfRequired(Realm realm, Token token)
     {
@@ -486,53 +460,6 @@ public class TokensRealmSource implements TokenLocalSource
         {
             token.setRealmBalance(realmToken);
         }
-    }
-
-    private void populateNFTAssets(Realm realm, RealmToken realmToken, Token token, List<BigInteger> additions) throws RealmException
-    {
-        if (!token.isNonFungible()) return;
-
-        BigDecimal balanceCount = BigDecimal.ZERO;
-
-        //load all the old assets
-        Map<BigInteger, NFTAsset> assetMap = getNFTAssets(realm, token);
-
-        //create addition asset map
-        Map<BigInteger, NFTAsset> additionMap = new HashMap<>();
-
-        for (BigInteger tokenId : additions)
-        {
-            NFTAsset asset = assetMap.get(tokenId);
-            if (asset == null) asset = new NFTAsset(tokenId);
-            additionMap.put(tokenId, asset);
-        }
-
-        Map<BigInteger, NFTAsset> balanceMap = token.queryAssets(additionMap);
-
-        List<BigInteger> deleteList = new ArrayList<>();
-
-        //update token assets
-        for (Map.Entry<BigInteger, NFTAsset> entry : balanceMap.entrySet())
-        {
-            if (entry.getValue().getBalance().longValue() == 0)
-            {
-                deleteList.add(entry.getKey());
-            }
-            else
-            {
-                writeAsset(realm, token, entry.getKey(), entry.getValue());
-                balanceCount = balanceCount.add(entry.getValue().getBalance());
-            }
-        }
-
-        if (deleteList.size() > 0)
-        {
-            deleteAssets(realm, token, deleteList);
-        }
-
-        //switch visibility if required
-        checkTokenVisibility(realmToken, token, balanceCount);
-        token.setRealmBalance(realmToken);
     }
 
     private void checkTokenVisibility(RealmToken realmToken, Token token, BigDecimal balanceCount)
@@ -779,7 +706,6 @@ public class TokensRealmSource implements TokenLocalSource
                 token.setRealmInterfaceSpec(realmToken);
                 token.setRealmBalance(realmToken);
                 token.setRealmLastBlock(realmToken);
-                writeAssetContract(realm, token);
             }
 
             if (oldToken.getInterfaceSpec() != token.getInterfaceSpec())
@@ -829,79 +755,7 @@ public class TokensRealmSource implements TokenLocalSource
         }
     }
 
-    private void writeAssetContract(final Realm realm, Token token)
-    {
-        if (token == null || token.getAssetContract() == null) return;
 
-        String databaseKey = databaseKey(token);
-        RealmNFTAsset realmNFT = realm.where(RealmNFTAsset.class).equalTo("tokenIdAddr", databaseKey).findFirst();
-
-        if (realmNFT == null)
-        {
-            realmNFT = realm.createObject(RealmNFTAsset.class, databaseKey);
-            realmNFT.setMetaData(token.getAssetContract().getJSON());
-        }
-        else
-        {
-            realmNFT.setMetaData(token.getAssetContract().getJSON());
-        }
-
-        realm.insertOrUpdate(realmNFT);
-    }
-
-    // NFT Assets From Opensea - assume this list is trustworthy - events will catch up with it
-    @Override
-    public Token initNFTAssets(Wallet wallet, Token token)
-    {
-        if (!token.isNonFungible()) return token;
-        try (Realm realm = realmManager.getRealmInstance(wallet))
-        {
-            realm.executeTransaction(r -> {
-                //load all the assets from the database
-                Map<BigInteger, NFTAsset> assetMap = getNFTAssets(r, token);
-
-                //run through the new assets and patch
-                for (Map.Entry<BigInteger, NFTAsset> entry : token.getTokenAssets().entrySet())
-                {
-                    NFTAsset fromOpenSea = entry.getValue();
-                    NFTAsset fromDataBase = assetMap.get(entry.getKey());
-
-                    fromOpenSea.updateAsset(fromDataBase);
-
-                    token.getTokenAssets().put(entry.getKey(), fromOpenSea);
-
-                    //write to realm
-                    writeAsset(r, token, entry.getKey(), fromOpenSea);
-                }
-            });
-        }
-        catch (Exception e)
-        {
-            Timber.w(e);
-        }
-
-        return token;
-    }
-
-    private void writeAsset(Realm realm, Token token, BigInteger tokenId, NFTAsset asset)
-    {
-        String key = RealmNFTAsset.databaseKey(token, tokenId);
-        RealmNFTAsset realmAsset = realm.where(RealmNFTAsset.class).equalTo("tokenIdAddr", key).findFirst();
-
-        if (realmAsset == null)
-        {
-            realmAsset = realm.createObject(RealmNFTAsset.class, key);
-        }
-        else if (asset.equals(realmAsset))
-        {
-            return;
-        }
-
-        realmAsset.setMetaData(asset.jsonMetaData());
-        realmAsset.setBalance(asset.getBalance());
-
-        realm.insertOrUpdate(realmAsset);
-    }
 
     private void deleteAllAssets(Realm realm, String dbKey) throws RealmException
     {
@@ -910,41 +764,6 @@ public class TokensRealmSource implements TokenLocalSource
         RealmResults<RealmNFTAsset> realmAssets = realm.where(RealmNFTAsset.class).beginsWith("tokenIdAddr", key, Case.INSENSITIVE).findAll();
 
         realmAssets.deleteAllFromRealm();
-    }
-
-    private void deleteAssets(Realm realm, Token token, List<BigInteger> assetIds)
-    {
-        for (BigInteger tokenId : assetIds)
-        {
-            RealmNFTAsset realmAsset = realm.where(RealmNFTAsset.class).equalTo("tokenIdAddr", RealmNFTAsset.databaseKey(token, tokenId)).findFirst();
-
-            if (realmAsset != null) realmAsset.deleteFromRealm();
-            token.getTokenAssets().remove(tokenId);
-        }
-    }
-
-    private Map<BigInteger, NFTAsset> getNFTAssets(Realm realm, Token token)
-    {
-        Map<BigInteger, NFTAsset> assets = new HashMap<>();
-
-        RealmResults<RealmNFTAsset> results = realm.where(RealmNFTAsset.class).like("tokenIdAddr", databaseKey(token) + "-*", Case.INSENSITIVE).findAll();
-
-        for (RealmNFTAsset realmAsset : results)
-        {
-            try
-            {
-                //grab all assets for this tokenId
-                BigInteger tokenId = new BigInteger(realmAsset.getTokenId());
-                NFTAsset asset = new NFTAsset(realmAsset);
-                assets.put(tokenId, asset);
-            }
-            catch (NumberFormatException e)
-            {
-                // Just in case tokenId got corrupted
-            }
-        }
-
-        return assets;
     }
 
     public TokenCardMeta[] fetchTokenMetasForUpdate(Wallet wallet, List<Long> networkFilters)
@@ -1544,39 +1363,9 @@ public class TokensRealmSource implements TokenLocalSource
         Token result = tf.createToken(info, realmItem, realmItem.getUpdateTime(), network.getShortName());
         result.setTokenWallet(wallet.address);
 
-        if (result.isNonFungible())
-        {
-            Map<BigInteger, NFTAsset> assets = getNFTAssets(realm, result);
-            for (BigInteger tokenId : assets.keySet())
-            {
-                result.addAssetToTokenBalanceAssets(tokenId, assets.get(tokenId));
-            }
-
-            loadAssetContract(realm, result);
-        }
         return result;
     }
 
-    private void loadAssetContract(Realm realm, Token token)
-    {
-        String databaseKey = databaseKey(token);
-        RealmNFTAsset realmNFT = realm.where(RealmNFTAsset.class)
-                .equalTo("tokenIdAddr", databaseKey)
-                .findFirst();
-
-        try
-        {
-            if (realmNFT != null)
-            {
-                AssetContract assetContract = new Gson().fromJson(realmNFT.getMetaData(), AssetContract.class);
-                token.setAssetContract(assetContract);
-            }
-        }
-        catch (JsonSyntaxException e)
-        {
-            //
-        }
-    }
 
     private Token createCurrencyToken(NetworkInfo network, Wallet wallet)
     {

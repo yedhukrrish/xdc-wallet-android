@@ -35,28 +35,7 @@ public class TokenFactory
                 if (balances == null) balances = new ArrayList<>();
                 thisToken = new Ticket(tokenInfo, balances, updateBlancaTime, networkName, type);
                 break;
-            case ERC721_TICKET:
-                if (balances == null) balances = new ArrayList<>();
-                thisToken = new ERC721Ticket(tokenInfo, balances, updateBlancaTime, networkName, type);
-                break;
-            case ERC721:
-            case ERC721_ENUMERABLE:
-            case ERC721_LEGACY:
-                if (tokenInfo.decimals != 0)
-                {
-                    tokenInfo = new TokenInfo(tokenInfo.address, tokenInfo.name, tokenInfo.symbol, 0, tokenInfo.isEnabled, tokenInfo.chainId);
-                }
-                thisToken = new ERC721Token(tokenInfo, null, balance, updateBlancaTime, networkName, type);
-                if (balance.compareTo(BigDecimal.ZERO) >=0)
-                {
-                    thisToken.balance = balance;
-                }
-                break;
-            case ERC1155:
-                tokenInfo = new TokenInfo(tokenInfo.address, tokenInfo.name, tokenInfo.symbol, 0, tokenInfo.isEnabled, tokenInfo.chainId);
-                thisToken = new ERC1155Token(tokenInfo, null, updateBlancaTime, networkName);
-                thisToken.balance = balance;
-                break;
+
             case NOT_SET:
             case ERC20:
             case MAYBE_ERC20:
@@ -112,10 +91,6 @@ public class TokenFactory
                 thisToken = new Token(tokenInfo, decimalBalance, updateBlancaTime, networkName, type);
                 thisToken.pendingBalance = decimalBalance;
                 break;
-            case ERC721_TICKET:
-                if (realmBalance.equals("0")) realmBalance = "";
-                thisToken = new ERC721Ticket(tokenInfo, realmBalance, updateBlancaTime, networkName, type);
-                break;
             case ERC875:
             case ERC875_LEGACY:
                 if (realmBalance.equals("0")) realmBalance = "";
@@ -125,17 +100,6 @@ public class TokenFactory
             case CURRENCY:
                 thisToken = new Token(tokenInfo, decimalBalance, updateBlancaTime, networkName, ContractType.ETHEREUM);
                 thisToken.pendingBalance = decimalBalance;
-                break;
-
-            case ERC721:
-            case ERC721_LEGACY:
-            case ERC721_ENUMERABLE:
-            case ERC721_UNDETERMINED:
-                thisToken = new ERC721Token(tokenInfo, null, decimalBalance, updateBlancaTime, networkName, type);
-                break;
-
-            case ERC1155:
-                thisToken = new ERC1155Token(tokenInfo, null, updateBlancaTime, networkName);
                 break;
 
             case OTHER:
@@ -160,16 +124,7 @@ public class TokenFactory
             case ERC875_LEGACY:
                 thisToken = new Ticket(tokenInfo, new ArrayList<BigInteger>(), currentTime, networkName, type);
                 break;
-            case ERC721_TICKET:
-                thisToken = new ERC721Ticket(tokenInfo, new ArrayList<BigInteger>(), currentTime, networkName, type);
-                break;
-            case ERC721:
-            case ERC721_LEGACY:
-            case ERC721_UNDETERMINED:
-            case ERC721_ENUMERABLE:
-                thisToken = new ERC721Token(tokenInfo, null, BigDecimal.ZERO, currentTime, networkName, type);
-                break;
-            case ETHEREUM:
+           case ETHEREUM:
                 String[] split = tokenInfo.address.split("-");
                 thisToken = new Token(
                         new TokenInfo(split[0],
@@ -180,9 +135,6 @@ public class TokenFactory
                                       tokenInfo.chainId),
                         BigDecimal.ZERO, currentTime, networkName, type);
                 thisToken.pendingBalance = BigDecimal.ZERO;
-                break;
-            case ERC1155:
-                thisToken = new ERC1155Token(tokenInfo, null, currentTime, networkName);
                 break;
             case ERC20:
             case DYNAMIC_CONTRACT:

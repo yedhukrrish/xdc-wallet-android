@@ -1,8 +1,6 @@
 package com.alphawallet.app.util;
 
 import static com.alphawallet.app.util.Utils.isValidUrl;
-import static com.alphawallet.ethereum.EthereumNetworkBase.POLYGON_ID;
-import static com.alphawallet.ethereum.EthereumNetworkBase.POLYGON_TEST_ID;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -291,7 +289,7 @@ public class DappBrowserUtils
 
     public static String defaultDapp(long chainId)
     {
-        return (chainId == POLYGON_ID || chainId == POLYGON_TEST_ID) ? POLYGON_HOMEPAGE : DEFAULT_HOMEPAGE;
+        return  DEFAULT_HOMEPAGE;
     }
 
     public static boolean isWithinHomePage(String url)

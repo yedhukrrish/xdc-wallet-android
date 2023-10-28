@@ -399,10 +399,10 @@ public class WalletFragment extends BaseFragment implements
             return;
         }
         tabLayout.addTab(tabLayout.newTab().setText(R.string.all));
-        tabLayout.addTab(tabLayout.newTab().setText(R.string.assets));
-        tabLayout.addTab(tabLayout.newTab().setText(R.string.collectibles));
-        tabLayout.addTab(tabLayout.newTab().setText(R.string.defi_header));
-        tabLayout.addTab(tabLayout.newTab().setText(R.string.governance_header));
+//        tabLayout.addTab(tabLayout.newTab().setText(R.string.assets));
+//        tabLayout.addTab(tabLayout.newTab().setText(R.string.collectibles));
+//        tabLayout.addTab(tabLayout.newTab().setText(R.string.defi_header));
+//        tabLayout.addTab(tabLayout.newTab().setText(R.string.governance_header));
         //tabLayout.addTab(tabLayout.newTab().setText(R.string.attestations));
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener()

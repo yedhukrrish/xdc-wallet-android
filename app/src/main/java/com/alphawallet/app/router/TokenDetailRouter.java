@@ -7,12 +7,10 @@ import android.content.Intent;
 
 import com.alphawallet.app.C;
 import com.alphawallet.app.entity.Wallet;
-import com.alphawallet.app.entity.nftassets.NFTAsset;
+
 import com.alphawallet.app.entity.tokens.Token;
 import com.alphawallet.app.ui.AssetDisplayActivity;
 import com.alphawallet.app.ui.Erc20DetailActivity;
-import com.alphawallet.app.ui.NFTActivity;
-import com.alphawallet.app.ui.NFTAssetDetailActivity;
 
 public class TokenDetailRouter
 {
@@ -37,26 +35,7 @@ public class TokenDetailRouter
         context.startActivityForResult(intent, C.TOKEN_SEND_ACTIVITY);
     }
 
-    public void open(Activity context, Token token, Wallet wallet, boolean hasDefinition)
-    {
-        Intent intent = new Intent(context, NFTActivity.class);
-        intent.putExtra(C.Key.WALLET, wallet);
-        intent.putExtra(C.EXTRA_CHAIN_ID, token.tokenInfo.chainId);
-        intent.putExtra(C.EXTRA_ADDRESS, token.getAddress());
-        intent.putExtra(C.EXTRA_HAS_DEFINITION, hasDefinition);
-        intent.setFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
-        context.startActivityForResult(intent, C.TOKEN_SEND_ACTIVITY);
-    }
 
-    public void open(Activity activity, Token token, Wallet wallet)
-    {
-        Intent intent = new Intent(activity, NFTActivity.class);
-        intent.putExtra(C.EXTRA_CHAIN_ID, token.tokenInfo.chainId);
-        intent.putExtra(C.EXTRA_ADDRESS, token.getAddress());
-        intent.putExtra(C.Key.WALLET, wallet);
-        intent.setFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
-        activity.startActivityForResult(intent, C.TERMINATE_ACTIVITY);
-    }
 
     public void openLegacyToken(Activity context, Token token, Wallet wallet)
     {
@@ -68,15 +47,5 @@ public class TokenDetailRouter
         context.startActivityForResult(intent, C.TERMINATE_ACTIVITY);
     }
 
-    public void openAttestation(Activity context, Token token, Wallet wallet, NFTAsset asset)
-    {
-        Intent intent = new Intent(context, NFTAssetDetailActivity.class);
-        intent.putExtra(C.Key.WALLET, wallet);
-        intent.putExtra(C.EXTRA_CHAIN_ID, token.tokenInfo.chainId);
-        intent.putExtra(C.EXTRA_ADDRESS, token.tokenInfo.address);
-        intent.putExtra(C.EXTRA_TOKEN_ID, token.getUUID().toString());
-        intent.putExtra(C.EXTRA_ATTESTATION_ID, asset.getAttestationID());
-        intent.putExtra(C.EXTRA_NFTASSET, asset);
-        context.startActivityForResult(intent, C.TERMINATE_ACTIVITY);
-    }
+
 }

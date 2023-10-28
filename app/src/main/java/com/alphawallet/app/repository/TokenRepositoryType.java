@@ -6,7 +6,7 @@ import com.alphawallet.app.entity.ContractLocator;
 import com.alphawallet.app.entity.ContractType;
 import com.alphawallet.app.entity.TransferFromEventResponse;
 import com.alphawallet.app.entity.Wallet;
-import com.alphawallet.app.entity.nftassets.NFTAsset;
+
 import com.alphawallet.app.entity.tokendata.TokenGroup;
 import com.alphawallet.app.entity.tokendata.TokenTicker;
 import com.alphawallet.app.entity.tokens.Attestation;
@@ -55,12 +55,6 @@ public interface TokenRepositoryType
     Single<Token[]> storeTokens(Wallet wallet, Token[] tokens);
 
     Single<String> resolveENS(long chainId, String address);
-
-    void updateAssets(String wallet, Token erc721Token, List<BigInteger> additions, List<BigInteger> removals);
-
-    void storeAsset(String currentAddress, Token token, BigInteger tokenId, NFTAsset asset);
-
-    Token initNFTAssets(Wallet wallet, Token token);
 
     Single<ContractType> determineCommonType(TokenInfo tokenInfo);
 

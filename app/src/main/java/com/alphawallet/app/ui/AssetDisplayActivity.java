@@ -29,10 +29,9 @@ import com.alphawallet.app.entity.StandardFunctionInterface;
 import com.alphawallet.app.entity.TransactionReturn;
 import com.alphawallet.app.entity.Wallet;
 import com.alphawallet.app.entity.WalletType;
-import com.alphawallet.app.entity.nftassets.NFTAsset;
+
 import com.alphawallet.app.entity.tokens.Token;
 import com.alphawallet.app.service.GasService;
-import com.alphawallet.app.ui.widget.adapter.NonFungibleTokenAdapter;
 import com.alphawallet.app.ui.widget.entity.ActionSheetCallback;
 import com.alphawallet.app.viewmodel.TokenFunctionViewModel;
 import com.alphawallet.app.web3.Web3TokenView;
@@ -97,7 +96,7 @@ public class AssetDisplayActivity extends BaseActivity implements StandardFuncti
     private FunctionButtonBar functionBar;
     private Token token;
     private Wallet wallet;
-    private NonFungibleTokenAdapter adapter;
+
     private AWalletAlertDialog dialog;
     private Web3TokenView testView;
     private ActionSheetDialog confirmationDialog;
@@ -228,7 +227,6 @@ public class AssetDisplayActivity extends BaseActivity implements StandardFuncti
     private void onSigData(XMLDsigDescriptor sigData)
     {
         toolbarView.onSigData(sigData, this);
-        if (adapter != null) adapter.notifyItemChanged(0); //notify issuer update
     }
 
     @Override
@@ -239,7 +237,6 @@ public class AssetDisplayActivity extends BaseActivity implements StandardFuncti
         if (functionBar == null)
         {
             functionBar = findViewById(R.id.layoutButtons);
-            functionBar.setupFunctions(this, viewModel.getAssetDefinitionService(), token, adapter, token.getArrayBalance());
             functionBar.setWalletType(wallet.type);
         }
     }
@@ -253,7 +250,6 @@ public class AssetDisplayActivity extends BaseActivity implements StandardFuncti
             finishReceiver.unregister();
         }
         viewModel.clearFocusToken();
-        if (adapter != null) adapter.onDestroy(tokenView);
         viewModel.onDestroy();
     }
 
@@ -262,7 +258,6 @@ public class AssetDisplayActivity extends BaseActivity implements StandardFuncti
      */
     private void refreshAssets()
     {
-        adapter.reloadAssets(this);
         systemView.hide();
     }
 
@@ -283,13 +278,13 @@ public class AssetDisplayActivity extends BaseActivity implements StandardFuncti
     @Override
     public void selectRedeemTokens(List<BigInteger> selection)
     {
-        viewModel.selectRedeemTokens(this, token, selection);
+
     }
 
     @Override
     public void sellTicketRouter(List<BigInteger> selection)
     {
-        viewModel.sellTicketRouter(this, token, selection);
+
     }
 
     @Override
@@ -359,10 +354,6 @@ public class AssetDisplayActivity extends BaseActivity implements StandardFuncti
                 //go straight to confirmation
                 checkConfirm(web3Tx);
             }
-        }
-        else
-        {
-            viewModel.showFunction(this, token, function, selection, null);
         }
     }
 
@@ -443,15 +434,7 @@ public class AssetDisplayActivity extends BaseActivity implements StandardFuncti
     {
         handler.removeCallbacks(this);
         progressView.setVisibility(View.GONE);
-        adapter = new NonFungibleTokenAdapter(functionBar, token, viewModel.getAssetDefinitionService(), viewModel.getOpenseaService());
-        functionBar.setupFunctions(this, viewModel.getAssetDefinitionService(), token, adapter, token.getArrayBalance());
         functionBar.setWalletType(wallet.type);
-        tokenView.setAdapter(adapter);
-    }
-
-    public void storeAsset(BigInteger tokenId, NFTAsset asset)
-    {
-        viewModel.getTokensService().storeAsset(token, tokenId, asset);
     }
 
     private void errorInsufficientFunds(Token currency)
